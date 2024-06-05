@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "app",
+    "slug": "app",
+    "version": "1.0.0",
+    "android": {
+      "package": "trilha.android"
+    },
+    "ios": {
+      "bundleIdentifier": "trilha.ios"
+    }
+  },
+  "name": "app"
+}
