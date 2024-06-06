@@ -1,20 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { View, FlatList, ActivityIndicator } from 'react-native';
+import { View, FlatList, ActivityIndicator, Text, Pressable } from 'react-native';
 import { styles } from '../styles/styles';
 import DefaultButton from '../components/DefaultButton';
 
-function TrilhaCard ({ item, navigation }) {
+function TrilhaCard({ item, navigation }) {
   return (
-    <View style={styles.item}>
-      <DefaultButton
-        text={item.title}
+    <View>
+      <Pressable 
+        style={styles.card}
         onPress={() => navigation.navigate('Iniciar', { item })}
-      />
+      > 
+        <Text>
+          {item.title}
+        </Text>
+      </Pressable>
     </View>
   );
 };
 
-export default function TrilhasScreen ({ navigation }) {
+export default function TrilhasScreen({ navigation }) {
   const [isLoading, setLoading] = useState(true);
   const [data, setData] = useState([]);
 
@@ -35,7 +39,7 @@ export default function TrilhasScreen ({ navigation }) {
   }, []);
 
   return (
-    <View style={{ flex: 1, padding: 24 }}>
+    <View style={styles.cardContainer}>
       {isLoading ? (
         <ActivityIndicator />
       ) : (
