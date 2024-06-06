@@ -19,6 +19,9 @@ function TrilhaCard({ item, navigation }) {
             <Text style={styles.cardTitle}>
               {item.title}
             </Text>
+            <Text style={{fontStyle: 'italic', fontSize: 12, textAlign: 'center'}}>
+              A Trilha do flamboyant é agradável para fazer com a familia?
+            </Text>
             <Text style={styles.cardSubtitle}>
               7 Árvores 1.8 Km
             </Text>
