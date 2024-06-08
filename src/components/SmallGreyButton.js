@@ -1,11 +1,11 @@
 import React from 'react';
 import { Text, Pressable } from 'react-native';
-import { styles } from '../styles/styles';
+import { Buttons } from '../styles';
 
-export default function DefaultButton({ text, onPress}) {
+export default function SmallGreyButton({ text, onPress}) {
     return (
       <Pressable
-          style={styles.button}
+          style={Buttons.styles.smallGrey}
           onPress={onPress}
       >
           <Text>{text}</Text>

@@ -27,10 +27,12 @@ export default function App() {
         <Stack.Screen
           name="Iniciar"
           component={IniciarScreen}
+          options={{headerTransparent: true, title: ''}}
         />
         <Stack.Screen
           name="Atividade"
           component={AtividadeScreen}
+          options={{headerShown: false, title: ''}}
         />
         <Stack.Screen
           name="Final"

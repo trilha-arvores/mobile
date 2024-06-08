@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native'; 
+import FilledRoundButton from '../components/FilledRoundButton';
 
 export const styles = StyleSheet.create({
     homeContainer: {
@@ -22,8 +23,6 @@ export const styles = StyleSheet.create({
       fontWeight: 'bold',
       color: 'black',
       fontSize: 30,
-      // letterSpacing: 1,
-      fontFamily: 'Open Sans'
     },
     item: {
       marginVertical: 6,
@@ -81,6 +80,7 @@ export const styles = StyleSheet.create({
     cardSubtitle : {
       color: 'black',
       fontSize: 16, 
+      paddingHorizontal: 5,
     },
     button: {
       width: 200,
@@ -92,4 +92,51 @@ export const styles = StyleSheet.create({
       // height: 80,
       backgroundColor: '#517300',
     },
+    smallerButton : {
+      width: 100,
+      height: 60,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: 4,
+      elevation: 3,
+      // height: 80,
+      backgroundColor: 'black',
+    },
+    roundButton : {
+      width: 90,
+      height: 90,
+      // borderWidth: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: 50,
+      elevation: 3,
+      marginHorizontal: 20,
+      // height: 80,
+      backgroundColor: '#517300',
+    },
+    filledRoundButton : {
+      width: 90,
+      height: 90,
+      borderWidth: 1,
+      borderColor: '#517300',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: 50,
+      elevation: 3,
+      marginHorizontal: 20,
+      // height: 80,
+      backgroundColor: 'white',
+    },
+
+    activityComponent : {
+      backgroundColor: 'transparent',
+      fontSize: 40,
+      flex: 3, flexDirection: 'row',
+      justifyContent: 'center',
+    },
+    activityComponentTitle : {
+      color: '#313131', 
+      flex: 1
+    }
+
 });
