@@ -8,7 +8,7 @@ export default function DefaultButton({ text, onPress}) {
           style={styles.button}
           onPress={onPress}
       >
-          <Text>{text}</Text>
+          <Text style={styles.text}>{text}</Text>
       </Pressable>
     )
 }

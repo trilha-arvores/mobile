@@ -18,17 +18,17 @@ function TrilhaCard({ item, navigation }) {
           />
           <View style={styles.subCard}>
             <Text style={styles.cardTitle}>
-              {item.title}
+              {item.name}
             </Text>
             <Text style={{ fontStyle: 'italic', fontSize: 12, textAlign: 'center' }}>
-              A Trilha do {item.title} é agradável para fazer com a familia?
+              A Trilha do {item.name} é agradável para fazer com a familia?
             </Text>
             <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-around'}}>
               <Text style={styles.cardSubtitle}>
-                <FontAwesome5 name="tree" color="#517300" /> 7 Árvores
+                <FontAwesome5 name="tree" color="#517300" /> {item.n_trees} Árvores
               </Text>
               <Text style={styles.cardSubtitle}>
-                <FontAwesome5 name="running" color="#517300" /> 1.8 Km
+                <FontAwesome5 name="running" color="#517300" /> {item.distance} Km
               </Text>
             </View>
           </View>
@@ -44,9 +44,10 @@ export default function TrilhasScreen({ navigation }) {
 
   const getMovies = async () => {
     try {
-      const response = await fetch('https://reactnative.dev/movies.json');
+      const response = await fetch('http://192.168.0.12:5000/trails/');
       const json = await response.json();
-      setData(json.movies);
+      console.log(json);
+      setData(json);
     } catch (error) {
       console.error(error);
     } finally {

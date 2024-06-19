@@ -23,6 +23,13 @@ export const styles = StyleSheet.create({
       fontWeight: 'bold',
       color: 'black',
       fontSize: 30,
+      textAlign: 'center'
+    },
+    subtitle: {
+      fontWeight: 'bold',
+      color: 'black',
+      fontSize: 20,
+      textAlign: 'center'
     },
     item: {
       marginVertical: 6,
@@ -43,7 +50,7 @@ export const styles = StyleSheet.create({
     card : {
       flex: 1,
       flexDirection: 'column',
-      borderWidth: 1,
+      // borderWidth: 1,
       marginHorizontal: 20,
       marginVertical: 10,
       paddingVertical: 5,
