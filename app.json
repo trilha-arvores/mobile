@@ -4,10 +4,30 @@
     "slug": "app",
     "version": "1.0.0",
     "android": {
-      "package": "trilha.android"
+      "package": "trilha.android",
+      "permissions": [
+        "android.permission.CAMERA"
+      ]
     },
     "ios": {
-      "bundleIdentifier": "trilha.ios"
+      "bundleIdentifier": "trilha.ios",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Allow $(PRODUCT_NAME) to access your camera"
+      }
+    },
+    "plugins": [
+      [
+        "react-native-vision-camera",
+        {
+          "enableCodeScanner": true,
+          "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera."
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "0e8b7150-9526-4e8e-b212-32b017bc2d12"
+      }
     }
   },
   "name": "app"

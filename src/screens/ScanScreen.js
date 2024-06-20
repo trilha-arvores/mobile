@@ -1,30 +1,49 @@
 import React from 'react';
-import { View } from 'react-native';
+import {
+  View, AppRegistry,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  Linking
+} from 'react-native';
 import DefaultButton from '../components/DefaultButton';
+import { useCodeScanner, Camera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera';
 
-export default function ScanScreen ({ route, navigation }) {
+
+export default function ScanScreen({ route, navigation }) {
+  const device = useCameraDevice('back');
+  const { hasPermission, requestPermission } = useCameraPermission();
+
+  const checkQRCode = (code) => {
+    return true;
+  }
+
+  const codeScanner = useCodeScanner({
+    codeTypes: ['qr', 'ean-13'],
+    onCodeScanned: (codes) => {
+      const firstCode = codes[0];
+      const check = checkQRCode(firstCode);
+      console.log(`Scanned ${firstCode.value} codes!`)
+    }
+  })
+
+  React.useEffect(() => {
+    if (device) {
+      Camera.requestCameraPermission()
+        .then(result => {
+          console.log('requestCameraPermission: ', result);
+        })
+        .catch(err => {
+          console.log('requestCameraPermission Err: ', err);
+        });
+    }
+  }, [device]);
+
+
+
   return (
-    <View>
-      <DefaultButton
-        text='Sucesso ao Escanear'
-        onPress={() =>
-          navigation.navigate({
-            name: 'Atividade',
-            params: {sucess: true},
-            merge: true
-          })
-        }
-      />
-      <DefaultButton
-        text='Erro ao Escanear'
-        onPress={() =>
-          navigation.navigate({
-            name: 'Atividade',
-            params: {sucess: false},
-            merge: true
-          })
-        }
-      />
-    </View>
+    <Camera style={StyleSheet.absoluteFill} device={device} codeScanner={codeScanner} isActive={true} />
   )
 }
+
+AppRegistry.registerComponent('X', () => ScanScreen);
