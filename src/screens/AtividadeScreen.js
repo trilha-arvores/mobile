@@ -139,7 +139,7 @@ export default function AtividadeScreen({ route, navigation }) {
                 style={styles.button}
                 text='CAMERA'
                 onPress={() => {
-                  navigation.navigate('Escanear');
+                  navigation.navigate('Escanear', {'tree': data[arvore]});
                 }
                 }>
               </RoundButton>

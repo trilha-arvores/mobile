@@ -40,7 +40,7 @@ export default function App() {
         <Stack.Screen
           name="Iniciar"
           component={IniciarScreen}
-          options={({ route }) => ({ 
+          options={({ route }) => ({
             title: route.params.item.name,
             headerTitleAlign: 'center'
           })
@@ -49,7 +49,7 @@ export default function App() {
         <Stack.Screen
           name="Atividade"
           component={AtividadeScreen}
-          options={({ route }) => ({ 
+          options={({ route }) => ({
             title: route.params.item.name,
             headerTitleAlign: 'center'
           })
@@ -58,7 +58,7 @@ export default function App() {
         <Stack.Screen
           name="Final"
           component={FinalScreen}
-          options={({ route }) => ({ 
+          options={({ route }) => ({
             title: route.params.item.name,
             headerTitleAlign: 'center'
           })
@@ -67,6 +67,11 @@ export default function App() {
         <Stack.Screen
           name="Escanear"
           component={ScanScreen}
+          options={({ route }) => ({
+            title: `${route.params.tree.name}: ${route.params.tree.id}`,
+            headerTitleAlign: 'center'
+          })
+          }
         />
 
       </Stack.Navigator>
