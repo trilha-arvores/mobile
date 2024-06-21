@@ -9,8 +9,10 @@ import { ReactNativeZoomableView } from '@openspacelabs/react-native-zoomable-vi
 import ZoomableImage from '../components/ZoomableImage';
 import DistanceComponent from '../components/DistanceComponent';
 import TimeComponent from '../components/TimeComponent';
+import Compass from '../components/Compass';
 import { useFonts } from 'expo-font';
 import FilledRoundButton from '../components/FilledRoundButton';
+import CompassHeading from 'react-native-compass-heading';
 // import RoundButton from '../components/RoundButton';
 
 
@@ -23,8 +25,9 @@ export default function AtividadeScreen({ route, navigation }) {
   const [distancia, setDistancia] = useState(0);
   const [data, setData] = useState([]);
   const [isLoading, setLoading] = useState(true);
+  const [degree, setDegree] = useState(0);
 
-  const item = route.params.item;  
+  const item = route.params.item;
 
 
   const [fontsLoaded] = useFonts({
@@ -104,7 +107,7 @@ export default function AtividadeScreen({ route, navigation }) {
           }}>
             <DistanceComponent distance={distancia.toFixed(2)} />
             <View style={{ borderWidth: 0.5, height: '100%', backgroundColor: '#313131' }} />
-            <TimeComponent start={start} getTime={getTime}/>
+            <TimeComponent start={start} getTime={getTime} />
           </View>
         </View>
         <View style={{
@@ -125,7 +128,7 @@ export default function AtividadeScreen({ route, navigation }) {
           justifyContent: 'space-around',
           width: '100%',
           paddingVertical: 10,
-          paddingHorizontal: 100,
+          paddingHorizontal: 50,
           borderTopWidth: 1,
           borderColor: '#313131',
         }}>
@@ -135,11 +138,12 @@ export default function AtividadeScreen({ route, navigation }) {
                 text={start ? 'PAUSAR' : 'RETOMAR'}
                 onPress={() => setStart(!start)}
               />
+              <Compass text={'BÚSSOLA'}/>
               <RoundButton
                 style={styles.button}
                 text='CAMERA'
                 onPress={() => {
-                  navigation.navigate('Escanear', {'tree': data[arvore]});
+                  navigation.navigate('Escanear', { 'tree': data[arvore] });
                 }
                 }>
               </RoundButton>
