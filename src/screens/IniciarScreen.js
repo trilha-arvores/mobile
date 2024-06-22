@@ -35,7 +35,7 @@ export default function IniciarScreen({ route, navigation }) {
             </Text>
           </View>
         </View>
-        <View style={{margin: 20}}>
+        <View style={{marginBottom: 15}}>
           <RoundButton
             text='INICIAR'
             onPress={() => navigation.navigate('Atividade', { item })}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, Pressable, View, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { Text, Pressable, View, StyleSheet, TouchableOpacity, Image, PermissionsAndroid } from 'react-native';
 // import { styles } from '../styles/styles';
 import { Magnetometer } from 'expo-sensors';
 import FilledRoundButton from '../components/FilledRoundButton';
@@ -52,7 +52,7 @@ export default function Compass({ text }) {
 
     return (
         <View
-            style={[styles.filledRoundButton, { backgroundColor: 'black', elevation: 0, transform: [{ rotate: 360 - magnetometer + 'deg' }] }]}
+            style={[styles.filledRoundButton, { backgroundColor: 'white', elevation: 0, transform: [{ rotate: 360 - magnetometer + 'deg' }] }]}
         >
             {/* <Text style={{
                 color: '#517300',
@@ -65,7 +65,7 @@ export default function Compass({ text }) {
                     aspectRatio: 1,
 
                 }}
-                source={require('../assets/compass.png')}
+                source={require('../assets/icompass.png')}
             />
         </View>
     );

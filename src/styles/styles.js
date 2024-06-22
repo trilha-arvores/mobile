@@ -67,6 +67,7 @@ export const styles = StyleSheet.create({
     },
     subCard : {
       height: '80%',
+      width: '90%',
       flex: 1,
       flexDirection: 'column',
       alignItems: 'center',
