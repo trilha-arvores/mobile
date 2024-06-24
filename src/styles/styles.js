@@ -45,7 +45,8 @@ export const styles = StyleSheet.create({
       width: '25%', 
       height: 'undefined', 
       aspectRatio: 1, 
-      borderRadius: 4
+      borderRadius: 4,
+      resizeMode: 'contain'
     },
     card : {
       flex: 1,

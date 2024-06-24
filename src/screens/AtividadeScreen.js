@@ -26,6 +26,7 @@ export default function AtividadeScreen({ route, navigation }) {
   const [data, setData] = useState([]);
   const [isLoading, setLoading] = useState(true);
   const [degree, setDegree] = useState(0);
+  const TRAIL_API_BASE_URL = __DEV__ ? 'http://172.26.196.22:5000' : 'https://ALGUMACOISA.COM';
 
   const item = route.params.item;
 
@@ -36,8 +37,10 @@ export default function AtividadeScreen({ route, navigation }) {
 
   const getTrees = async () => {
     try {
-      const response = await fetch('http://192.168.0.12:5000/trails/' + item.id + '/trees');
+      setLoading(true);
+      const response = await fetch(TRAIL_API_BASE_URL + '/trails/' + item.id + '/trees');
       const trees = await response.json();
+      console.log(trees);
       setData(trees);
     } catch (error) {
       console.error(error);
@@ -54,7 +57,8 @@ export default function AtividadeScreen({ route, navigation }) {
     if (route.params?.sucess) {
       if (route.params.sucess) {
         setArvore(n => n + 1);
-        setDistancia(n => n + data[arvore].distance);
+        const distance = data[arvore + 1] != null && data[arvore + 1].distance != null? data[arvore + 1].distance : 0;
+        setDistancia(n => n + distance);
       }
       route.params.sucess = false;
     }
@@ -82,7 +86,7 @@ export default function AtividadeScreen({ route, navigation }) {
   return (
     <View style={{ flex: 1, flexDirection: 'column' }}>
       <View style={{ flex: 5, backgroundColor: 'whitesmoke' }}>
-        <ZoomableImage source={require('../assets/mapa.jpg')} />
+        <ZoomableImage source={{uri: item.map_img.replace('localhost', '172.26.196.22')}} />
       </View>
       <View style={{
         flex: 2.5,
