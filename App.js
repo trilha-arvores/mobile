@@ -11,6 +11,18 @@ import TrilhasScreen from './src/screens/TrilhasScreen'
 
 const Stack = createNativeStackNavigator();
 
+const config = {
+  animation: 'spring',
+  config: {
+    stiffness: 1000,
+    damping: 500,
+    mass: 3,
+    overshootClamping: true,
+    restDisplacementThreshold: 0.01,
+    restSpeedThreshold: 0.01,
+  },
+};
+
 export default function App() {
   return (
     <NavigationContainer>
@@ -18,29 +30,50 @@ export default function App() {
         <Stack.Screen
           name="Home"
           component={HomeScreen}
-          options={{ title: 'Início' }}
+          options={{ title: 'Início', headerShown: false }}
         />
         <Stack.Screen
           name="Trilhas"
           component={TrilhasScreen}
+          options={{ headerTitleAlign: 'center' }}
         />
         <Stack.Screen
           name="Iniciar"
           component={IniciarScreen}
+          options={({ route }) => ({
+            title: route.params.item.name,
+            headerTitleAlign: 'center'
+          })
+          }
         />
         <Stack.Screen
           name="Atividade"
           component={AtividadeScreen}
+          options={({ route }) => ({
+            title: route.params.item.name,
+            headerTitleAlign: 'center'
+          })
+          }
         />
         <Stack.Screen
           name="Final"
           component={FinalScreen}
+          options={({ route }) => ({
+            title: route.params.item.name,
+            headerTitleAlign: 'center'
+          })
+          }
         />
         <Stack.Screen
           name="Escanear"
           component={ScanScreen}
+          options={({ route }) => ({
+            title: `${route.params.tree.name}: ${route.params.tree.id}`,
+            headerTitleAlign: 'center'
+          })
+          }
         />
-        
+
       </Stack.Navigator>
     </NavigationContainer>
   );
