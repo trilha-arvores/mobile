@@ -11,13 +11,13 @@ export default function IniciarScreen({ route, navigation }) {
   const item = route.params.item;
   return (
     <View style={{ flex: 1, flexDirection: 'column', backgroundColor: 'red' }}>
-      <View style={{ flex: 3.5, backgroundColor: 'yellow' }}>
+      <View style={{ flex: 3.5, backgroundColor: 'whitesmoke' }}>
         <ScrollView
           horizontal={true}
           showsHorizontalScrollIndicator={false}>
           <Image style={{ height: '100%', width: 'undefined', aspectRatio: 1, resizeMode: 'cover' }}
             // style={styles.roundImage}
-            source={{uri: item.thumb_img.replace('localhost', '192.168.0.12')}}
+            source={{uri: item.thumb_img.replace('localhost', '172.26.196.22')}}
           />
         </ScrollView>
       </View>

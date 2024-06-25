@@ -63,7 +63,7 @@ export default function TrilhasScreen({ navigation }) {
   return (
     <View style={styles.cardContainer}>
       {isLoading ? (
-        <ActivityIndicator />
+        <ActivityIndicator size={'large'} />
       ) : (
         <FlatList
           data={data}

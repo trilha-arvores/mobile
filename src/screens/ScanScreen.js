@@ -126,7 +126,7 @@ export default function ScanScreen({ route, navigation }) {
       </View>
       <View style={{ flex: 9 }}>
         {isLoading ? (
-          <ActivityIndicator />
+          <ActivityIndicator size={'large'} />
         ) : (
           <Camera style={StyleSheet.absoluteFill} device={device} codeScanner={codeScanner} isActive={true} />
         )}
