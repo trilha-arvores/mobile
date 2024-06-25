@@ -14,14 +14,11 @@ function TrilhaCard({ item, navigation }) {
         <View style={styles.cardHeader}>
           <Image
             style={styles.roundImage}
-            source={require('../assets/flamboyant-laranja-esalq.jpg')}
+            source={{uri: item.thumb_img.replace('localhost', '192.168.0.12')}}
           />
           <View style={styles.subCard}>
             <Text style={styles.cardTitle}>
               {item.name}
-            </Text>
-            <Text style={{ fontStyle: 'italic', fontSize: 12, textAlign: 'center' }}>
-              A Trilha do {item.name} é agradável para fazer com a familia?
             </Text>
             <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-around'}}>
               <Text style={styles.cardSubtitle}>
@@ -41,10 +38,14 @@ function TrilhaCard({ item, navigation }) {
 export default function TrilhasScreen({ navigation }) {
   const [isLoading, setLoading] = useState(true);
   const [data, setData] = useState([]);
+  const TRAIL_API_BASE_URL = __DEV__ ? 'http://192.168.0.12:5000' : 'google.com';
+
 
   const getMovies = async () => {
     try {
-      const response = await fetch('http://192.168.0.12:5000/trails/');
+      console.log(TRAIL_API_BASE_URL);
+      const response = await fetch(TRAIL_API_BASE_URL + '/trails/');
+      console.log(response);
       const json = await response.json();
       console.log(json);
       setData(json);

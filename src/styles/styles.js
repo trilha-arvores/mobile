@@ -45,7 +45,8 @@ export const styles = StyleSheet.create({
       width: '25%', 
       height: 'undefined', 
       aspectRatio: 1, 
-      borderRadius: 4
+      borderRadius: 4,
+      resizeMode: 'cover'
     },
     card : {
       flex: 1,
@@ -81,6 +82,7 @@ export const styles = StyleSheet.create({
       padding: 3,
     },
     cardTitle : {
+      textAlign: 'center',
       fontWeight: 'bold',
       color: 'black',
       fontSize: 20,
