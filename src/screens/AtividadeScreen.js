@@ -85,7 +85,7 @@ export default function AtividadeScreen({ route, navigation }) {
   return (
     <>
       {isLoading ? (
-        <ActivityIndicator />
+        <ActivityIndicator size={'large'}/>
       ) : (
         <View style={{ flex: 1, flexDirection: 'column' }}>
           <View style={{ flex: 5, backgroundColor: 'whitesmoke' }}>
