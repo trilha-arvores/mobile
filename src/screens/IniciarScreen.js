@@ -17,7 +17,7 @@ export default function IniciarScreen({ route, navigation }) {
           showsHorizontalScrollIndicator={false}>
           <Image style={{ height: '100%', width: 'undefined', aspectRatio: 1, resizeMode: 'cover' }}
             // style={styles.roundImage}
-            source={{uri: item.thumb_img.replace('localhost', '172.26.196.22')}}
+            source={{uri: item.thumb_img.replace('localhost', '192.168.0.12')}}
           />
         </ScrollView>
       </View>
