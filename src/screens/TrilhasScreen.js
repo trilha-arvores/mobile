@@ -3,6 +3,7 @@ import { View, FlatList, ActivityIndicator, Text, Pressable, Image } from 'react
 import { styles } from '../styles/styles';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import DefaultButton from '../components/DefaultButton';
+import { Platform } from 'react-native';
 
 function TrilhaCard({ item, navigation }) {
   return (
@@ -38,7 +39,11 @@ function TrilhaCard({ item, navigation }) {
 export default function TrilhasScreen({ navigation }) {
   const [isLoading, setLoading] = useState(true);
   const [data, setData] = useState([]);
-  const TRAIL_API_BASE_URL = __DEV__ ? 'http://192.168.0.12:5000' : 'google.com';
+  const TRAIL_API_BASE_URL = __DEV__
+  ? Platform.OS === 'android'
+    ? 'http://10.0.2.2:5000'   // Android emulator
+    : 'http://localhost:5000'  // iOS simulator ou expo web
+  : 'https://seu-domínio.com';
 
 
   const getMovies = async () => {
