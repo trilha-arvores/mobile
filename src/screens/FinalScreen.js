@@ -22,7 +22,7 @@ export default function FinalScreen({ route, navigation }) {
       <View style={{ flex: 5, backgroundColor: 'whitesmoke' }}>
         <Image style={{ height: '100%', width: 'undefined', resizeMode: 'cover' }}
           // style={styles.roundImage}
-          source={{uri: item.thumb_img.replace('localhost', '192.168.0.12')}}
+          source={{uri: item.thumb_img.replace('localhost', '10.0.2.2')}}
         />
       </View>
 

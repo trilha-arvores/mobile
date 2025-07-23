@@ -94,7 +94,7 @@ export default function AtividadeScreen({ route, navigation }) {
       ) : (
         <View style={{ flex: 1, flexDirection: 'column' }}>
           <View style={{ flex: 5, backgroundColor: 'whitesmoke' }}>
-            <ZoomableImage source={{ uri: item.map_img.replace('localhost', '192.168.0.12') }} />
+            <ZoomableImage source={{ uri: item.map_img.replace('localhost', '10.0.2.2') }} />
           </View>
           <View style={{
             flex: 2.5,
