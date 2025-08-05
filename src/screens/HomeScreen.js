@@ -30,6 +30,12 @@ export default function HomeScreen({ navigation }) {
             onPress={() => navigation.navigate('Trilhas')}
           />
         </View>
+        <View style = {styles.item}>
+          <DefaultButton
+          text= 'Perfil'
+          onPress={() => navigation.navigate('Perfil')}
+          />
+        </View>
         <View style={styles.item}>
           <DefaultButton
             text='Sair'

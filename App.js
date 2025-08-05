@@ -8,7 +8,9 @@ import AtividadeScreen from './src/screens/AtividadeScreen'
 import IniciarScreen from './src/screens/IniciarScreen'
 import ScanScreen from './src/screens/ScanScreen'
 import TrilhasScreen from './src/screens/TrilhasScreen'
-
+import LoginScreen from './src/screens/LoginScreen'
+import UserScreen from './src/screens/UserScreen';
+improt 
 const Stack = createNativeStackNavigator();
 
 const config = {
@@ -68,12 +70,22 @@ export default function App() {
           name="Escanear"
           component={ScanScreen}
           options={({ route }) => ({
-            title: `${route.params.tree.name}: ${route.params.tree.id}`,
+            title: route.params.tree.name,
             headerTitleAlign: 'center'
           })
           }
         />
-
+        <Stack.Screen
+          name="Login"
+          component={LoginScreen}
+          options={{ title: 'Login', headerTitleAlign: 'center' }}
+        />
+        <Stack.Screen
+          name="Perfil"
+          component={UserScreen}
+          options={{ title: 'Perfil do Usuário', headerTitleAlign: 'center' }}
+        />
+        
       </Stack.Navigator>
     </NavigationContainer>
   );
