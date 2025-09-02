@@ -13,6 +13,8 @@ import { colors } from '../styles/Colors';
 import { useCodeScanner, Camera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera';
 import ChangeColorButton from '../components/ChangeColorButton';
 import { check } from 'react-native-permissions';
+import { Platform } from 'react-native';
+
 
 const ERROR = -1;
 const WAITING = 0;
@@ -25,7 +27,15 @@ export default function ScanScreen({ route, navigation }) {
   const [color, setColor] = useState('yellow');
   const [isLoading, setLoading] = useState(false);
   const { hasPermission, requestPermission } = useCameraPermission();
-  const TRAIL_API_BASE_URL = 'http://192.168.0.12:5000';
+ // const TRAIL_API_BASE_URL = 'http://192.168.0.12:5000';
+
+ // const TRAIL_API_BASE_URL = __DEV__
+  // ? Platform.OS === 'android'
+  //   ? 'http://10.0.2.2:5000'   // Android emulator
+  //   : 'http://localhost:5000'  // iOS simulator ou expo web
+  // : 'https://seu-domínio.com';
+  const TRAIL_API_BASE_URL = 'http://200.144.255.186:2281';  
+
   const tree = route.params.tree;
   const trail_id = route.params.trail_id;
   const position = route.params.position;

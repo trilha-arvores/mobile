@@ -13,6 +13,7 @@ import Compass from '../components/Compass';
 import { useFonts } from 'expo-font';
 import FilledRoundButton from '../components/FilledRoundButton';
 import CompassHeading from 'react-native-compass-heading';
+import { Platform } from 'react-native';
 // import RoundButton from '../components/RoundButton';
 
 
@@ -25,9 +26,15 @@ export default function AtividadeScreen({ route, navigation }) {
   const [data, setData] = useState([]);
   const [isLoading, setLoading] = useState(true);
   const [degree, setDegree] = useState(0);
-  const TRAIL_API_BASE_URL = __DEV__ ? 'http://192.168.0.12:5000' : 'https://ALGUMACOISA.COM';
+  //const TRAIL_API_BASE_URL = __DEV__ ? 'http://192.168.0.12:5000' : 'https://ALGUMACOISA.COM';
+  // const TRAIL_API_BASE_URL = __DEV__
+  // ? Platform.OS === 'android'
+  //   ? 'http://10.0.2.2:5000'   // Android emulator
+  //   : 'http://localhost:5000'  // iOS simulator ou expo web
+  // : 'https://seu-domínio.com';
+   const item = route.params.item;
 
-  const item = route.params.item;
+  const TRAIL_API_BASE_URL = 'http://200.144.255.186:2281';  
 
 
   const [fontsLoaded] = useFonts({
