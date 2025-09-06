@@ -22,11 +22,19 @@
           "enableCodeScanner": true,
           "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera."
         }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
       ]
     ],
     "extra": {
       "eas": {
-        "projectId": "0e8b7150-9526-4e8e-b212-32b017bc2d12"
+        "projectId": "773733a3-33d4-47ce-a9ef-54ac5a1f8d0c" 
       }
     }
   },
