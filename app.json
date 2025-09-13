@@ -6,7 +6,8 @@
     "android": {
       "package": "trilha.android",
       "permissions": [
-        "android.permission.CAMERA"
+        "android.permission.CAMERA",
+        "android.permission.INTERNET"
       ]
     },
     "ios": {
@@ -21,14 +22,6 @@
         {
           "enableCodeScanner": true,
           "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera."
-        }
-      ],
-      [
-        "expo-build-properties",
-        {
-          "android": {
-            "usesCleartextTraffic": true
-          }
         }
       ]
     ],

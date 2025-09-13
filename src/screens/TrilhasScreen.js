@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, FlatList, ActivityIndicator, Text, Pressable, Image } from 'react-native';
+import { View, FlatList, ActivityIndicator, Text, Pressable, Image, Platform, Alert } from 'react-native';
 import { styles } from '../styles/styles';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import DefaultButton from '../components/DefaultButton';
-import { Platform } from 'react-native';
+import { API_BASE, normalizeUrl } from '../config/api';
 
 function TrilhaCard({ item, navigation }) {
   return (
@@ -15,7 +15,8 @@ function TrilhaCard({ item, navigation }) {
         <View style={styles.cardHeader}>
           <Image
             style={styles.roundImage}
-            source={{uri: item.thumb_img.replace('localhost', '192.168.0.12')}}
+            //source={{uri: item.thumb_img.replace('localhost', '192.168.0.12')}}
+            source={{ uri: normalizeUrl(item.thumb_img) }}
           />
           <View style={styles.subCard}>
             <Text style={styles.cardTitle}>
@@ -40,31 +41,39 @@ export default function TrilhasScreen({ navigation }) {
   const [isLoading, setLoading] = useState(true);
   const [data, setData] = useState([]);
 
-  //  Platform.OS === 'android'
-const TRAIL_API_BASE_URL = 'http://200.144.255.186:2281';  
-  // const TRAIL_API_BASE_URL = __DEV__
-  // ? Platform.OS === 'android'
-  //   ? 'http://10.0.2.2:5000'   // Android emulator
-  //   : 'http://localhost:5000'  // iOS simulator ou expo web
-  // : 'https://seu-domínio.com';
 
+//const TRAIL_API_BASE_URL = 'http://200.144.255.186:2281';  
+const TRAIL_API_BASE_URL = API_BASE
   
 
   const getMovies = async () => {
     try {
       console.log(TRAIL_API_BASE_URL);
       const response = await fetch(TRAIL_API_BASE_URL + '/trails/');
+      
+      // Adiciona uma verificação extra para erros de servidor
+      if (!response.ok) {
+        throw new Error(`Erro do Servidor: Status ${response.status}`);
+      }
+
       console.log(response);
       const json = await response.json();
       console.log(json);
       setData(json);
     } catch (error) {
-      console.error(error);
+ 
+      Alert.alert(
+        "Erro de Conexão",
+        `Não foi possível carregar as trilhas.\n\nDetalhes do erro: ${error.message}`
+      );
+      console.error(error); 
     } finally {
       setLoading(false);
     }
   };
 
+
+  
   useEffect(() => {
     getMovies();
   }, []);
