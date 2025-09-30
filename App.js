@@ -8,8 +8,8 @@ import AtividadeScreen from './src/screens/AtividadeScreen'
 import IniciarScreen from './src/screens/IniciarScreen'
 import ScanScreen from './src/screens/ScanScreen'
 import TrilhasScreen from './src/screens/TrilhasScreen'
-import LoginScreen from './src/screens/LoginScreen'
 import UserScreen from './src/screens/UserScreen';
+import SobreScreen from './src/screens/SobreScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -76,9 +76,9 @@ export default function App() {
           }
         />
         <Stack.Screen
-          name="Login"
-          component={LoginScreen}
-          options={{ title: 'Login', headerTitleAlign: 'center' }}
+          name="Sobre"
+          component={SobreScreen}
+          options={{ title: 'Sobre', headerTitleAlign: 'center' }}
         />
         <Stack.Screen
           name="Perfil"

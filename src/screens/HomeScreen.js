@@ -32,8 +32,8 @@ export default function HomeScreen({ navigation }) {
         </View>
         <View style = {styles.item}>
           <DefaultButton
-          text= 'Login'
-          onPress={() => navigation.navigate('Login')}
+          text= 'Sobre'
+          onPress={() => navigation.navigate('Sobre')}
           />
         </View>
         <View style={styles.item}>
