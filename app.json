@@ -7,12 +7,15 @@
       "package": "trilha.android",
       "permissions": [
         "android.permission.CAMERA",
-        "android.permission.INTERNET"
+        "android.permission.INTERNET",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION"
       ]
     },
     "ios": {
       "bundleIdentifier": "trilha.ios",
       "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Precisamos da sua localização para calcular a distância das árvores.",
         "NSCameraUsageDescription": "Allow $(PRODUCT_NAME) to access your camera"
       }
     },
