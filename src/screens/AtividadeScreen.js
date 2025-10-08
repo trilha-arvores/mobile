@@ -91,10 +91,10 @@ export default function AtividadeScreen({ route, navigation }) {
         setCoords(first.coords);
 
         sub = await Location.watchPositionAsync(
-          { accuracy: Location.Accuracy.Balanced, timeInterval: 2000, distanceInterval: 5 },
+          { accuracy: Location.Accuracy.BestForNavigation, timeInterval: 500, distanceInterval: 0 },
           (loc) => setCoords(loc.coords)
         );
-      } catch (e) {
+      } catch (e) {d  
         console.log('GPS error', e);
       }
     })();
@@ -152,18 +152,15 @@ export default function AtividadeScreen({ route, navigation }) {
               <Text style={{ color: '#555' }}>Permita acesso à localização para ver suas coordenadas.</Text>
             ) : coords ? (
               <>
-                {/* <Text style={{ color: '#1e88e5' }}>
-                  Sua posição: Lat {coords.latitude.toFixed(6)} | Lon {coords.longitude.toFixed(6)}
-                </Text> */}
                 {nextDistance != null && (
                   <Text style={styles.subtitle}>
                     Distância até a árvore {treeLabel}
-                    {treeId ? ` (ID ${treeId})` : ''}: {fmtMeters(nextDistance)}
+                    {treeId ? ` (Nº ${treeId})` : ''}: {fmtMeters(nextDistance)}
                   </Text>
-                )}
+                )}  
               </>
             ) : (
-              <Text>Obtendo localização...</Text>
+              <Text style={styles.subtitle}>Obtendo localização...</Text>
             )}
           </View>
 
