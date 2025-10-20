@@ -14,7 +14,6 @@ import { useFonts } from 'expo-font';
 import FilledRoundButton from '../components/FilledRoundButton';
 import CompassHeading from 'react-native-compass-heading';
 import { Platform } from 'react-native';
-// GPS (única adição de libs)
 import * as Location from 'expo-location';
 
 // Helpers (apenas para distância)
@@ -47,7 +46,6 @@ export default function AtividadeScreen({ route, navigation }) {
   const [isLoading, setLoading] = useState(true);
   const [degree, setDegree] = useState(0);
 
-  // mantém como estava
   const item = route.params.item;
   const TRAIL_API_BASE_URL = 'http://200.144.255.186:2281';
 
@@ -55,10 +53,10 @@ export default function AtividadeScreen({ route, navigation }) {
     'BebasNeue': require('../assets/fonts/BebasNeue.ttf'),
   });
 
-  // GPS (única adição de estado)
   const [coords, setCoords] = useState(null);
   const [locStatus, setLocStatus] = useState('checking');
-  const [nextDistance, setNextDistance] = useState(null); // distância até a próxima árvore
+  const [nextDistance, setNextDistance] = useState(null); 
+  const [gpsReady, setGpsReady] = useState(false);      
 
   const getTrees = async () => {
     try {
@@ -78,27 +76,57 @@ export default function AtividadeScreen({ route, navigation }) {
     getTrees();
   }, []);
 
-  // GPS (único efeito adicionado)
+  // GPS otimizado: fix inicial rápido + watch fluido
   useEffect(() => {
     let sub;
+    let mounted = true;
     (async () => {
       try {
+        // Permissão
         const { status } = await Location.requestForegroundPermissionsAsync();
         setLocStatus(status);
         if (status !== 'granted') return;
 
-        const first = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
-        setCoords(first.coords);
+        try {
+          const services = await Location.hasServicesEnabledAsync();
+          if (!services) { await Location.enableNetworkProviderAsync(); }
+        } catch {}
+
+        const last = await Location.getLastKnownPositionAsync({});
+        if (mounted && last?.coords) {
+          setCoords(last.coords);
+          setGpsReady(true);
+        }
+
+        try {
+          const quick = await Location.getCurrentPositionAsync({
+            accuracy: Location.Accuracy.Low,
+            timeout: 5000,
+            maximumAge: 10000
+          });
+          if (mounted && quick?.coords) {
+            setCoords(quick.coords);
+            setGpsReady(true);
+          }
+        } catch {}
 
         sub = await Location.watchPositionAsync(
-          { accuracy: Location.Accuracy.BestForNavigation, timeInterval: 500, distanceInterval: 0 },
-          (loc) => setCoords(loc.coords)
+          {
+            accuracy: Location.Accuracy.Balanced,
+            timeInterval: 1000,   // 1s
+            distanceInterval: 0   // 1m
+          },
+          (loc) => {
+            if (!mounted) return;
+            setCoords(loc.coords);
+            if (!gpsReady) setGpsReady(true);
+          }
         );
-      } catch (e) {d  
+      } catch (e) {
         console.log('GPS error', e);
       }
     })();
-    return () => { sub?.remove(); };
+    return () => { mounted = false; sub?.remove(); };
   }, []);
 
   // Recalcula a distância até a próxima árvore sempre que posição, índice ou dados mudarem
@@ -165,7 +193,15 @@ export default function AtividadeScreen({ route, navigation }) {
           </View>
 
           <View style={{ flex: 5, backgroundColor: 'whitesmoke' }}>
-            <ZoomableImage source={{ uri: item.map_img.replace('localhost', '192.168.0.12') }} />
+            <ZoomableImage 
+              source={{ uri: item.map_img.replace('localhost', '192.168.0.12') }}
+              // initialZoom={0.3}  // Start at 0.5x zoom instead of default 1x
+              // minZoom={0.3}      // Allow zooming out further
+              // contentWidth={800}  // Adjust based on your actual image dimensions
+              // contentHeight={600}
+              style={{ height: '100%', width: 'undefined', aspectRatio: 1, resizeMode: 'cover' }}
+              // style={{ width: '100%', height: '100%', resizeMode: 'cover'}}
+            />
           </View>
           <View style={{
             flex: 2.5,
@@ -185,7 +221,7 @@ export default function AtividadeScreen({ route, navigation }) {
               <View style={{ flex: 1, alignItems: 'center', flexDirection: 'row' }}>
                 <DistanceComponent distance={distancia.toFixed(2)} />
                 <View style={{ borderWidth: 0.5, height: '100%', backgroundColor: '#313131' }} />
-                <TimeComponent start={start} getTime={getTime} />
+                <TimeComponent start={start && gpsReady} getTime={getTime} />
               </View>
             </View>
             <View style={{

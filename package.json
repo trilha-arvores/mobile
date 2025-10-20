@@ -32,7 +32,8 @@
     "react-native-screens": "3.31.1",
     "react-native-stopwatch-timer": "^0.0.21",
     "react-native-svg": "15.2.0",
-    "react-native-vision-camera": "^4.3.2"
+    "react-native-vision-camera": "^4.3.2",
+    "react-native-maps": "1.14.0"
   },
   "resolutions": {
     "react-native-permissions": "^3.8.0"
