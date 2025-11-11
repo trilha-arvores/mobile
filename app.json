@@ -1,10 +1,14 @@
 {
   "expo": {
-    "name": "app",
+    "name": "Trilha das Árvores",
     "slug": "app",
     "version": "1.0.0",
     "android": {
       "package": "trilha.android",
+      "adaptiveIcon": {
+    "foregroundImage": "./src/assets/icon.png",
+    "backgroundColor": "#FFFFFF" 
+  },
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.INTERNET",
@@ -14,6 +18,7 @@
     },
     "ios": {
       "bundleIdentifier": "trilha.ios",
+      
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Precisamos da sua localização para calcular a distância das árvores.",
         "NSCameraUsageDescription": "Allow $(PRODUCT_NAME) to access your camera"
@@ -33,6 +38,5 @@
         "projectId": "773733a3-33d4-47ce-a9ef-54ac5a1f8d0c" 
       }
     }
-  },
-  "name": "app"
+  }
 }
