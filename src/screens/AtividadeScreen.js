@@ -15,6 +15,7 @@ import FilledRoundButton from '../components/FilledRoundButton';
 import CompassHeading from 'react-native-compass-heading';
 import { Platform } from 'react-native';
 import * as Location from 'expo-location';
+import { useSuspendedTrail } from '../context/SuspendedTrailContext';
 
 // Helpers (apenas para distância)
 const haversineMeters = (lat1, lon1, lat2, lon2) => {
@@ -37,6 +38,8 @@ const getTreeCoords = (t) => {
 };
 
 export default function AtividadeScreen({ route, navigation }) {
+  const { suspendTrail, clearSuspendedTrail } = useSuspendedTrail();
+
   const [start, setStart] = useState(true);
   const [finish, setFinish] = useState(false);
   const [arvore, setArvore] = useState(0);
@@ -168,6 +171,40 @@ export default function AtividadeScreen({ route, navigation }) {
   const currentTree = data?.[arvore];
   const treeLabel = currentTree?.name ?? `Árvore ${arvore + 1}`;
   const treeId = currentTree?.esalq_id ?? currentTree?.id;
+
+  // se abrir via "retomar", restaure o estado inicial
+  useEffect(() => {
+    if (route.params?.suspended) {
+      const s = route.params.suspended;
+      setArvore(s.arvore ?? 0);
+      setTime(s.time ?? 0);
+      setDistancia(s.distancia ?? 0);
+      setData(s.data ?? []);
+      setStart(true);
+      // etc conforme seus campos
+    }
+  }, [route.params?.suspended]);
+
+  // antes de sair: se não finalizou, salva em memória
+  useEffect(() => {
+    const unsub = navigation.addListener('beforeRemove', (e) => {
+      if (finish) {
+        clearSuspendedTrail();
+        return;
+      }
+      // se não finalizou, grava o estado atual (não bloqueia navegação)
+      const stateToSave = {
+        trailId: item?.id,
+        arvore,
+        time,
+        distancia,
+        data,
+        timestamp: Date.now(),
+      };
+      suspendTrail(stateToSave);
+    });
+    return unsub;
+  }, [navigation, finish, arvore, time, distancia, data]);
 
   return (
     <>

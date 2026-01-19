@@ -1,10 +1,16 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
 
 export default function SobreScreen() {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Sobre o Projeto</Text>
+     <Text style={styles.memberTitle}>USP Sustentável</Text>
+     <Image
+         source={require('../assets/USP-sustentavel.png')}
+         style={styles.uspLogo}
+         resizeMode="contain"
+       />
       <Text style={styles.description}>
 Este projeto, fruto de uma parceria entre representantes da USP São Carlos e a ESALQ,
 visa integrar a comunidade com o campus de Piracicaba. 
@@ -14,15 +20,15 @@ possam conhecer as maravilhas naturais deste magnífico campus, como uma forma d
       </Text>
       
       <Text style={styles.memberTitle}>Integrantes:</Text>
-      <Text style={styles.member}>Simone do Rocio Senger de Souza: Professora Orientadora ICMC-USP</Text>
-      <Text style={styles.member}>Luciana Duque Silva: Professora Orientadora ESALQ-USP</Text>
-      <Text style={styles.member}>Jefferson Lordello Polize: Co-orientador ESALQ-USP</Text>
-      <Text style={styles.member}>João Victor de Almeida: Membro Desenvolvedor</Text>
-      <Text style={styles.member}>Vitor Fróis: Membro Desenvolvedor</Text>
-      <Text style={styles.member}>Yvis Freire Silva Santos: Membro Desenvolvedor</Text>
-      <Text style={styles.member}>Davi Fagundes Ferreira: Membro Desenvolvedor</Text>
-      <Text style={styles.member}>Pedro Rossi: Membro Desenvolvedor</Text>
-      <Text style={styles.member}>Matheus Miller Lima: Membro Desenvolvedor</Text>
+      <Text style={styles.member}>Simone do Rocio Senger de Souza: Professora Orientadora, ICMC-USP</Text>
+      <Text style={styles.member}>Luciana Duque Silva: Professora Orientadora, ESALQ-USP</Text>
+      <Text style={styles.member}>Jefferson Lordello Polizel: Co-orientador, ESALQ-USP</Text>
+      <Text style={styles.member}>João Victor de Almeida: Membro Desenvolvedor, EESC/ICMC - USP</Text>
+      <Text style={styles.member}>Vitor Amorim Fróis: Membro Desenvolvedor, ICMC - USP</Text>
+      <Text style={styles.member}>Yvis Freire Silva Santos: Membro Desenvolvedor, ICMC - USP</Text>
+      <Text style={styles.member}>Davi Fagundes Ferreira: Membro Desenvolvedor, ICMC - USP</Text>
+      <Text style={styles.member}>Pedro Rossi: Membro Desenvolvedor ICMC, - USP</Text>
+      <Text style={styles.member}>Miller Matheus Lima: Membro Desenvolvedor, ICMC - USP</Text>
 
 
       <Text style={styles.footer}>
@@ -51,6 +57,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginTop: 20,
     marginBottom: 10,
+    textAlign: 'center',
   },
   member: {
     fontSize: 12,
@@ -62,4 +69,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontStyle: 'italic',
   },
+   uspLogo: {
+   width: 260,                 // ajuste se precisar
+   height: 120,
+   alignSelf: 'center',        // centraliza a imagem
+   marginBottom: 16,
+ },
 });
+
+

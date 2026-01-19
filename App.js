@@ -10,6 +10,7 @@ import ScanScreen from './src/screens/ScanScreen'
 import TrilhasScreen from './src/screens/TrilhasScreen'
 import UserScreen from './src/screens/UserScreen';
 import SobreScreen from './src/screens/SobreScreen';
+import { SuspendedTrailProvider } from './src/context/SuspendedTrailContext';
 
 const Stack = createNativeStackNavigator();
 
@@ -27,66 +28,68 @@ const config = {
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen
-          name="Home"
-          component={HomeScreen}
-          options={{ title: 'Início', headerShown: false }}
-        />
-        <Stack.Screen
-          name="Trilhas"
-          component={TrilhasScreen}
-          options={{ headerTitleAlign: 'center' }}
-        />
-        <Stack.Screen
-          name="Iniciar"
-          component={IniciarScreen}
-          options={({ route }) => ({
-            title: route.params.item.name,
-            headerTitleAlign: 'center'
-          })
-          }
-        />
-        <Stack.Screen
-          name="Atividade"
-          component={AtividadeScreen}
-          options={({ route }) => ({
-            title: route.params.item.name,
-            headerTitleAlign: 'center'
-          })
-          }
-        />
-        <Stack.Screen
-          name="Final"
-          component={FinalScreen}
-          options={({ route }) => ({
-            title: route.params.item.name,
-            headerTitleAlign: 'center'
-          })
-          }
-        />
-        <Stack.Screen
-          name="Escanear"
-          component={ScanScreen}
-          options={({ route }) => ({
-            title: `${route.params.tree.name}: ${route.params.tree.id}`,
-            headerTitleAlign: 'center'
-          })
-          }
-        />
-        <Stack.Screen
-          name="Sobre"
-          component={SobreScreen}
-          options={{ title: 'Sobre', headerTitleAlign: 'center' }}
-        />
-        <Stack.Screen
-          name="Perfil"
-          component={UserScreen}
-          options={{ title: 'Perfil do Usuário', headerTitleAlign: 'center' }}
-        />
+    <SuspendedTrailProvider>
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen
+            name="Home"
+            component={HomeScreen}
+            options={{ title: 'Início', headerShown: false }}
+          />
+          <Stack.Screen
+            name="Trilhas"
+            component={TrilhasScreen}
+            options={{ headerTitleAlign: 'center' }}
+          />
+          <Stack.Screen
+            name="Iniciar"
+            component={IniciarScreen}
+            options={({ route }) => ({
+              title: route.params.item.name,
+              headerTitleAlign: 'center'
+            })
+            }
+          />
+          <Stack.Screen
+            name="Atividade"
+            component={AtividadeScreen}
+            options={({ route }) => ({
+              title: route.params.item.name,
+              headerTitleAlign: 'center'
+            })
+            }
+          />
+          <Stack.Screen
+            name="Final"
+            component={FinalScreen}
+            options={({ route }) => ({
+              title: route.params.item.name,
+              headerTitleAlign: 'center'
+            })
+            }
+          />
+          <Stack.Screen
+            name="Escanear"
+            component={ScanScreen}
+            options={({ route }) => ({
+              title: `${route.params.tree.name}: ${route.params.tree.id}`,
+              headerTitleAlign: 'center'
+            })
+            }
+          />
+          <Stack.Screen
+            name="Sobre"
+            component={SobreScreen}
+            options={{ title: 'Sobre', headerTitleAlign: 'center' }}
+          />
+          <Stack.Screen
+            name="Perfil"
+            component={UserScreen}
+            options={{ title: 'Perfil do Usuário', headerTitleAlign: 'center' }}
+          />
 
-      </Stack.Navigator>
-    </NavigationContainer>
+        </Stack.Navigator>
+      </NavigationContainer>
+    </SuspendedTrailProvider>
   );
 }
