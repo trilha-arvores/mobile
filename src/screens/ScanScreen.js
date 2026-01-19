@@ -1,20 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  View, AppRegistry,
+  View,
   StyleSheet,
   Text,
-  TouchableOpacity,
-  Linking,
-  ActivityIndicator
+  ActivityIndicator,
+  Alert
 } from 'react-native';
-import DefaultButton from '../components/DefaultButton';
 import { styles } from '../styles/styles';
 import { colors } from '../styles/Colors';
 import { useCodeScanner, Camera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera';
 import ChangeColorButton from '../components/ChangeColorButton';
-import { check } from 'react-native-permissions';
-import { Platform } from 'react-native';
-
 
 const ERROR = -1;
 const WAITING = 0;
@@ -24,125 +19,137 @@ export default function ScanScreen({ route, navigation }) {
   const device = useCameraDevice('back');
   const [scanState, setScanState] = useState(WAITING);
   const [text, setText] = useState('Escaneie o código');
-  const [color, setColor] = useState('yellow');
-  const [isLoading, setLoading] = useState(false);
+  const [color, setColor] = useState('yellow'); // Usando string direta para evitar erro se colors.yellow falhar
+  
   const { hasPermission, requestPermission } = useCameraPermission();
- // const TRAIL_API_BASE_URL = 'http://192.168.0.12:5000';
+  
+  // Árvore alvo vinda da navegação
+  const tree = route.params?.tree || {};
+  
+  // Solicita permissão ao carregar
+  useEffect(() => {
+    requestPermission();
+  }, []);
 
- // const TRAIL_API_BASE_URL = __DEV__
-  // ? Platform.OS === 'android'
-  //   ? 'http://10.0.2.2:5000'   // Android emulator
-  //   : 'http://localhost:5000'  // iOS simulator ou expo web
-  // : 'https://seu-domínio.com';
-  const TRAIL_API_BASE_URL = 'http://200.144.255.186:2281';  
-
-  const tree = route.params.tree;
-  const trail_id = route.params.trail_id;
-  const position = route.params.position;
-
-
-  const checkQRCode = async (qrcode) => {
-    try {
-      setLoading(true);
-      console.log(qrcode);
-      const response = await fetch(TRAIL_API_BASE_URL + '/trails/' + trail_id + '/validate-qr', {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          qr_data: qrcode,
-          player_pos: position,
-        }),
-      });
-      console.log(response.status);
-      return response.status;
-    } catch (error) {
-      console.log(error);
-      return false;
-    } finally {
-      setLoading(false);
+  // [CORREÇÃO] Função para limpar o texto do QR Code
+  // Transforma "esalq_id = 10" em "10"
+  const extractIdFromQR = (qrValue) => {
+    if (!qrValue) return '';
+    const stringValue = String(qrValue).trim();
+    
+    // Verifica se tem o padrão "esalq_id =" (maiúsculo ou minúsculo)
+    if (stringValue.toLowerCase().includes('esalq_id')) {
+      const parts = stringValue.split('=');
+      // Pega a parte depois do igual e remove espaços
+      if (parts.length > 1) {
+        return parts[1].trim();
+      }
     }
-  }
+    // Se não tiver o texto, retorna o valor original (caso mude o padrão no futuro)
+    return stringValue;
+  };
 
   const codeScanner = useCodeScanner({
     codeTypes: ['qr', 'ean-13'],
     onCodeScanned: (codes) => {
-      if (scanState == WAITING) {
-        const firstCode = codes[0];
-        console.log(`Scanned ${firstCode.value} codes!`)
-        checkQRCode(firstCode.value).then(
-          (response) => {
-            console.log('sucesso!' + response);
-            if (response === 200) {
-              setScanState(SUCCESS);
-              navigation.navigate({
-                name: 'Atividade',
-                params: { sucess: true },
-                merge: true
-              })
-            } else {
-              setScanState(ERROR);
-            }
-          }
-        )
-        setTimeout(() => {
-          setScanState(WAITING)
-        }, 3000);
+      // Se já processou (Sucesso ou Erro), ignora novos scans
+      if (scanState !== WAITING) return;
+
+      if (codes.length > 0) {
+        const rawValue = codes[0].value;
+        const scannedId = extractIdFromQR(rawValue);
+        
+        // IDs para comparação (garantindo que sejam strings limpas)
+        const targetEsalqId = String(tree.esalq_id).trim();
+        const targetId = String(tree.id).trim();
+
+        console.log(`Lido: ${rawValue} | Extraído: ${scannedId} | Alvo: ${targetEsalqId}`);
+
+        // Compara o ID extraído com o ID da árvore alvo
+        if (scannedId === targetEsalqId || scannedId === targetId) {
+          setScanState(SUCCESS);
+          
+          setTimeout(() => {
+            // Volta para AtividadeScreen sinalizando sucesso
+            navigation.navigate({
+              name: 'Atividade',
+              params: { sucess: true },
+              merge: true,
+            });
+          }, 1500); // Tempo para ver a mensagem de sucesso
+
+        } else {
+          setScanState(ERROR);
+          
+          // Volta para estado de espera após 2 segundos
+          setTimeout(() => {
+            setScanState(WAITING);
+          }, 2000);
+        }
       }
     }
-  })
+  });
 
+  // Feedback Visual
   React.useEffect(() => {
-    if (device) {
-      Camera.requestCameraPermission()
-        .then(result => {
-          console.log('requestCameraPermission: ', result);
-        })
-        .catch(err => {
-          console.log('requestCameraPermission Err: ', err);
-        });
-    }
-  }, [device]);
-
-  React.useEffect(() => {
-    console.log({ scanState });
     switch (scanState) {
       case WAITING:
-        setColor(colors.yellow);
-        setText('Escaneie o QR Code');
+        setColor(colors.yellow || '#FFD700'); 
+        setText(`Procure a árvore: ${tree.name || '...'}`);
         break;
       case ERROR:
-        setColor(colors.red);
-        setText('Erro!');
+        setColor(colors.red || '#FF0000');
+        setText('QR Code Incorreto! Tente outra árvore.');
         break;
       case SUCCESS:
-        setColor(colors.green);
-        setText('Código escaneado com sucesso!');
+        setColor(colors.green || '#32CD32');
+        setText('Sucesso! Árvore correta.');
         break;
     }
-  }, [scanState])
+  }, [scanState, tree.name]);
 
-
+  if (!hasPermission) return (
+    <View style={[styles.container, {justifyContent: 'center', alignItems: 'center'}]}>
+      <Text>Sem permissão de câmera</Text>
+    </View>
+  );
+  
+  if (!device) return (
+    <View style={[styles.container, {justifyContent: 'center', alignItems: 'center'}]}>
+      <ActivityIndicator size="large" color="#000" />
+      <Text>Carregando câmera...</Text>
+    </View>
+  );
 
   return (
     <>
-      <View style={[styles.item, { flex: 1, justifyContent: 'center', alignItems: 'center' }]}>
+      <View style={[styles.item, { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }]}>
         <ChangeColorButton
           text={text}
           color={color}
         />
       </View>
-      <View style={{ flex: 9 }}>
-        {isLoading ? (
-          <ActivityIndicator size={'large'} />
-        ) : (
-          <Camera style={StyleSheet.absoluteFill} device={device} codeScanner={codeScanner} isActive={true} />
-        )}
+      <View style={{ flex: 9, backgroundColor: '#000' }}>
+        <Camera 
+          style={StyleSheet.absoluteFill} 
+          device={device} 
+          isActive={true} 
+          codeScanner={codeScanner} 
+        />
+        
+        {/* Mira Central (Visual Aid) */}
+        <View style={{
+            position: 'absolute',
+            top: 0, left: 0, right: 0, bottom: 0,
+            justifyContent: 'center', alignItems: 'center'
+        }}>
+            <View style={{
+                width: 250, height: 250,
+                borderWidth: 2, borderColor: 'rgba(255,255,255,0.5)',
+                borderRadius: 20
+            }} />
+        </View>
       </View>
     </>
-  )
+  );
 }
-
-AppRegistry.registerComponent('X', () => ScanScreen);

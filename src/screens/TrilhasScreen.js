@@ -2,20 +2,22 @@ import React, { useEffect, useState } from 'react';
 import { View, FlatList, ActivityIndicator, Text, Pressable, Image, Platform, Alert } from 'react-native';
 import { styles } from '../styles/styles';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import DefaultButton from '../components/DefaultButton';
 import { API_BASE, normalizeUrl } from '../config/api';
 
-function TrilhaCard({ item, navigation }) {
+// [NOVO] Hook do contexto
+import { useSuspendedTrail } from '../context/SuspendedTrailContext';
+
+// Modifiquei para receber 'onPress' em vez de navigation direto
+function TrilhaCard({ item, onPress }) {
   return (
     <View>
       <Pressable
         style={styles.card}
-        onPress={() => navigation.navigate('Iniciar', { item })}
+        onPress={() => onPress(item)}
       >
         <View style={styles.cardHeader}>
           <Image
             style={styles.roundImage}
-            //source={{uri: item.thumb_img.replace('localhost', '192.168.0.12')}}
             source={{ uri: normalizeUrl(item.thumb_img) }}
           />
           <View style={styles.subCard}>
@@ -40,28 +42,23 @@ function TrilhaCard({ item, navigation }) {
 export default function TrilhasScreen({ navigation }) {
   const [isLoading, setLoading] = useState(true);
   const [data, setData] = useState([]);
-
-
-//const TRAIL_API_BASE_URL = 'http://200.144.255.186:2281';  
-const TRAIL_API_BASE_URL = API_BASE
   
+  // [NOVO] Acessa o contexto
+  const { suspended, clearSuspendedTrail } = useSuspendedTrail();
 
+  const TRAIL_API_BASE_URL = API_BASE;
+  
   const getMovies = async () => {
     try {
-      console.log(TRAIL_API_BASE_URL);
       const response = await fetch(TRAIL_API_BASE_URL + '/trails/');
       
-      // Adiciona uma verificação extra para erros de servidor
       if (!response.ok) {
         throw new Error(`Erro do Servidor: Status ${response.status}`);
       }
 
-      console.log(response);
       const json = await response.json();
-      console.log(json);
       setData(json);
     } catch (error) {
- 
       Alert.alert(
         "Erro de Conexão",
         `Não foi possível carregar as trilhas.\n\nDetalhes do erro: ${error.message}`
@@ -72,11 +69,41 @@ const TRAIL_API_BASE_URL = API_BASE
     }
   };
 
-
-  
   useEffect(() => {
     getMovies();
   }, []);
+
+  // [NOVO] Lógica central da decisão (i) Retomar ou (ii) Iniciar do Zero
+  const handleTrailPress = (item) => {
+    // Verifica se há trilha suspensa E se é a mesma que o usuário clicou
+    // Usamos String() para garantir que comparação de ID numérico/string funcione
+    if (suspended && String(suspended.trailId) === String(item.id)) {
+      Alert.alert(
+        "Trilha em Andamento",
+        "Você tem uma trilha pausada. O que deseja fazer?",
+        [
+          {
+            text: "Iniciar do Zero",
+            onPress: () => {
+              clearSuspendedTrail(); // Limpa a memória
+              navigation.navigate('Iniciar', { item }); // Vai para tela de início padrão
+            },
+            style: "destructive"
+          },
+          {
+            text: "Retomar Trilha",
+            onPress: () => {
+              // Pula a tela 'Iniciar' e vai direto para 'Atividade' recuperando o estado
+              navigation.navigate('Atividade', { item, suspended: suspended });
+            }
+          }
+        ]
+      );
+    } else {
+      // Se não houver nada suspenso, fluxo normal
+      navigation.navigate('Iniciar', { item });
+    }
+  };
 
   return (
     <View style={styles.cardContainer}>
@@ -85,8 +112,13 @@ const TRAIL_API_BASE_URL = API_BASE
       ) : (
         <FlatList
           data={data}
-          keyExtractor={({ id }) => id}
-          renderItem={({ item }) => TrilhaCard({ item, navigation })}
+          keyExtractor={({ id }) => String(id)}
+          renderItem={({ item }) => (
+            <TrilhaCard 
+              item={item} 
+              onPress={handleTrailPress} 
+            />
+          )}
         />
       )}
     </View>

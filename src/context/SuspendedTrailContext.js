@@ -5,8 +5,17 @@ const SuspendedTrailContext = createContext(null);
 export function SuspendedTrailProvider({ children }) {
   const [suspended, setSuspended] = useState(null);
 
-  const suspendTrail = (trailState) => setSuspended(trailState);
-  const clearSuspendedTrail = () => setSuspended(null);
+  // Salva o estado da trilha
+  const suspendTrail = (trailState) => {
+    console.log("Trilha suspensa salva:", trailState.trailId);
+    setSuspended(trailState);
+  };
+
+  // Limpa o estado (usado ao finalizar ou reiniciar)
+  const clearSuspendedTrail = () => {
+    console.log("Trilha suspensa limpa");
+    setSuspended(null);
+  };
 
   return (
     <SuspendedTrailContext.Provider value={{ suspended, suspendTrail, clearSuspendedTrail }}>

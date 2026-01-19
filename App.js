@@ -10,6 +10,7 @@ import ScanScreen from './src/screens/ScanScreen'
 import TrilhasScreen from './src/screens/TrilhasScreen'
 import UserScreen from './src/screens/UserScreen';
 import SobreScreen from './src/screens/SobreScreen';
+// [NOVO] Importar o Provider
 import { SuspendedTrailProvider } from './src/context/SuspendedTrailContext';
 
 const Stack = createNativeStackNavigator();
@@ -28,6 +29,7 @@ const config = {
 
 export default function App() {
   return (
+    // [NOVO] Envolvendo a navegação com o Provider
     <SuspendedTrailProvider>
       <NavigationContainer>
         <Stack.Navigator>
