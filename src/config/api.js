@@ -1,5 +1,4 @@
-//// filepath: /home/jo-o-victor/Documents/projeto/mobile/src/config/api.js
-export const API_BASE = 'http://200.144.255.186:2281'; // use 5000 se for essa a porta pública
+export const API_BASE = process.env.EXPO_PUBLIC_API_URL;
 
 export const normalizeUrl = (url) => {
   if (!url) return url;

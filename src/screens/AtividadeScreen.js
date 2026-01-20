@@ -12,6 +12,7 @@ import FilledRoundButton from '../components/FilledRoundButton';
 import * as Location from 'expo-location';
 import { normalizeUrl } from '../config/api';
 import { useSuspendedTrail } from '../context/SuspendedTrailContext';
+import { API_BASE} from '../config/api';
 
 const haversineMeters = (lat1, lon1, lat2, lon2) => {
   const R = 6371000;
@@ -42,8 +43,9 @@ export default function AtividadeScreen({ route, navigation }) {
   const [data, setData] = useState([]);
   const [isLoading, setLoading] = useState(true);
   
+  
   const item = route.params.item;
-  const TRAIL_API_BASE_URL = 'http://200.144.255.186:2281'; 
+  // const TRAIL_API_BASE_URL = 'http://200.144.255.186:2281'; 
 
   const [fontsLoaded] = useFonts({
     'BebasNeue': require('../assets/fonts/BebasNeue.ttf'),
@@ -57,7 +59,7 @@ export default function AtividadeScreen({ route, navigation }) {
   const getTrees = async () => {
     try {
       setLoading(true);
-      const response = await fetch(TRAIL_API_BASE_URL + '/trails/' + item.id + '/trees');
+      const response = await fetch(`${API_BASE}/trails/${item.id}/trees`);
       const trees = await response.json();
       setData(trees);
     } catch (error) {

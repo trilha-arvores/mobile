@@ -48,7 +48,7 @@ export default function TrilhasScreen({ navigation }) {
   
   const getMovies = async () => {
     try {
-      const response = await fetch(TRAIL_API_BASE_URL + '/trails/');
+      const response = await fetch(`${API_BASE}/trails/`);
       
       if (!response.ok) {
         throw new Error(`Erro do Servidor: Status ${response.status}`);
