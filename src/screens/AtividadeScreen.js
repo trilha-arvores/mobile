@@ -14,23 +14,6 @@ import { normalizeUrl } from '../config/api';
 import { useSuspendedTrail } from '../context/SuspendedTrailContext';
 import { API_BASE} from '../config/api';
 
-const haversineMeters = (lat1, lon1, lat2, lon2) => {
-  const R = 6371000;
-  const toRad = d => (d * Math.PI) / 180;
-  const dLat = toRad(lat2 - lat1);
-  const dLon = toRad(lon2 - lon1);
-  const a = Math.sin(dLat / 2) ** 2 +
-            Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
-  return 2 * R * Math.asin(Math.sqrt(a)); 
-};
-const fmtMeters = m => (m >= 1000 ? (m / 1000).toFixed(2) + ' km' : m.toFixed(1) + ' m');
-const getTreeCoords = (t) => {
-  if (!t) return null;
-  const latitude = Number(t.latitude ?? t.lat);
-  const longitude = Number(t.longitude ?? t.lng ?? t.lon);
-  if (Number.isFinite(latitude) && Number.isFinite(longitude)) return { latitude, longitude };
-  return null;
-};
 
 export default function AtividadeScreen({ route, navigation }) {
   const { suspendTrail, clearSuspendedTrail } = useSuspendedTrail();
@@ -43,9 +26,7 @@ export default function AtividadeScreen({ route, navigation }) {
   const [data, setData] = useState([]);
   const [isLoading, setLoading] = useState(true);
   
-  
   const item = route.params.item;
-  // const TRAIL_API_BASE_URL = 'http://200.144.255.186:2281'; 
 
   const [fontsLoaded] = useFonts({
     'BebasNeue': require('../assets/fonts/BebasNeue.ttf'),
@@ -53,7 +34,6 @@ export default function AtividadeScreen({ route, navigation }) {
 
   const [coords, setCoords] = useState(null);
   const [locStatus, setLocStatus] = useState('checking');
-  const [nextDistance, setNextDistance] = useState(null); 
   const [gpsReady, setGpsReady] = useState(false);      
 
   const getTrees = async () => {
@@ -64,12 +44,12 @@ export default function AtividadeScreen({ route, navigation }) {
       setData(trees);
     } catch (error) {
       console.error(error);
+      Alert.alert("Erro", "Falha ao carregar árvores.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Inicialização (Restaura ou Carrega)
   useEffect(() => {
     if (route.params?.suspended) {
       const s = route.params.suspended;
@@ -86,9 +66,8 @@ export default function AtividadeScreen({ route, navigation }) {
     } else {
       getTrees();
     }
-  }, []); 
+  }, []);
 
-  // Lógica de GPS
   useEffect(() => {
     let sub;
     let mounted = true;
@@ -119,23 +98,10 @@ export default function AtividadeScreen({ route, navigation }) {
     return () => { mounted = false; sub?.remove(); };
   }, []);
 
-  // Cálculo de distância
-  useEffect(() => {
-    const target = data?.[arvore];
-    const tc = getTreeCoords(target);
-    if (coords && tc) {
-      setNextDistance(haversineMeters(coords.latitude, coords.longitude, tc.latitude, tc.longitude));
-    } else {
-      setNextDistance(null);
-    }
-  }, [coords, arvore, data]);
 
   useEffect(() => {
     if (route.params?.sucess) {
-      setArvore(prev => {
-        const novoValor = prev + 1;
-        return novoValor;
-      });
+      setArvore(prev => prev + 1);
       
       const nextDist = data[arvore + 1]?.distance ?? 0;
       setDistancia(prev => prev + nextDist);
@@ -146,10 +112,9 @@ export default function AtividadeScreen({ route, navigation }) {
 
   useEffect(() => {
     if (data.length > 0 && arvore >= item.n_trees) {
-      setStart(false); // Para o timer
-      setFinish(true); // Marca como finalizado
+      setStart(false); 
+      setFinish(true); 
       
-      // Aguarda um breve momento para o usuário ver a barra cheia e navega
       setTimeout(() => {
         navigation.navigate('Final', { 
           'tempo': time, 
@@ -158,9 +123,8 @@ export default function AtividadeScreen({ route, navigation }) {
         });
       }, 500);
     }
-  }, [arvore, data]); // Monitora 'arvore'
+  }, [arvore, data]); 
 
-  // Salva estado ao sair (se não finalizou)
   useEffect(() => {
     const unsub = navigation.addListener('beforeRemove', (e) => {
       if (finish || arvore >= item.n_trees) {
@@ -195,9 +159,10 @@ export default function AtividadeScreen({ route, navigation }) {
               <Text style={{ color: '#555' }}>Permita acesso à localização.</Text>
             ) : coords ? (
               <>
-                {nextDistance != null && (
+                {}
+                {currentTree && (
                   <Text style={styles.subtitle}>
-                    Distância até {treeLabel}: {fmtMeters(nextDistance)}
+                    Próxima árvore: {treeLabel}
                   </Text>
                 )}  
               </>
@@ -235,7 +200,6 @@ export default function AtividadeScreen({ route, navigation }) {
               <Progress.Bar progress={arvore / item.n_trees} width={300} height={15} color={'#313131'} />
             </View>
             <View style={{ flex: 3, flexDirection: 'row', justifyContent: 'space-around', width: '100%', paddingVertical: 10, paddingHorizontal: 50, borderTopWidth: 1, borderColor: '#313131' }}>
-              {/* Se já finalizou, mostra o botão Finalizar (caso a navegação automática falhe ou seja cancelada) */}
               {(finish || arvore >= item.n_trees) ? 
                 <FilledRoundButton
                   text='FINALIZAR'
