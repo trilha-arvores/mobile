@@ -70,9 +70,9 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
    uspLogo: {
-   width: 260,                 // ajuste se precisar
+   width: 260,                 
    height: 120,
-   alignSelf: 'center',        // centraliza a imagem
+   alignSelf: 'center',        
    marginBottom: 16,
  },
 });

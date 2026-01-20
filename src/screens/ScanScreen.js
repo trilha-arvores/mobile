@@ -19,7 +19,7 @@ export default function ScanScreen({ route, navigation }) {
   const device = useCameraDevice('back');
   const [scanState, setScanState] = useState(WAITING);
   const [text, setText] = useState('Escaneie o código');
-  const [color, setColor] = useState('yellow'); // Usando string direta para evitar erro se colors.yellow falhar
+  const [color, setColor] = useState('yellow'); 
   
   const { hasPermission, requestPermission } = useCameraPermission();
   
@@ -31,8 +31,7 @@ export default function ScanScreen({ route, navigation }) {
     requestPermission();
   }, []);
 
-  // [CORREÇÃO] Função para limpar o texto do QR Code
-  // Transforma "esalq_id = 10" em "10"
+
   const extractIdFromQR = (qrValue) => {
     if (!qrValue) return '';
     const stringValue = String(qrValue).trim();

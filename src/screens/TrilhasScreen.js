@@ -3,8 +3,6 @@ import { View, FlatList, ActivityIndicator, Text, Pressable, Image, Platform, Al
 import { styles } from '../styles/styles';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { API_BASE, normalizeUrl } from '../config/api';
-
-// [NOVO] Hook do contexto
 import { useSuspendedTrail } from '../context/SuspendedTrailContext';
 
 // Modifiquei para receber 'onPress' em vez de navigation direto
@@ -73,10 +71,8 @@ export default function TrilhasScreen({ navigation }) {
     getMovies();
   }, []);
 
-  // [NOVO] Lógica central da decisão (i) Retomar ou (ii) Iniciar do Zero
   const handleTrailPress = (item) => {
-    // Verifica se há trilha suspensa E se é a mesma que o usuário clicou
-    // Usamos String() para garantir que comparação de ID numérico/string funcione
+
     if (suspended && String(suspended.trailId) === String(item.id)) {
       Alert.alert(
         "Trilha em Andamento",
@@ -93,14 +89,12 @@ export default function TrilhasScreen({ navigation }) {
           {
             text: "Retomar Trilha",
             onPress: () => {
-              // Pula a tela 'Iniciar' e vai direto para 'Atividade' recuperando o estado
               navigation.navigate('Atividade', { item, suspended: suspended });
             }
           }
         ]
       );
     } else {
-      // Se não houver nada suspenso, fluxo normal
       navigation.navigate('Iniciar', { item });
     }
   };

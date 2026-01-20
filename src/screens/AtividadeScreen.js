@@ -11,11 +11,8 @@ import { useFonts } from 'expo-font';
 import FilledRoundButton from '../components/FilledRoundButton';
 import * as Location from 'expo-location';
 import { normalizeUrl } from '../config/api';
-
-// Mantendo sua funcionalidade de pausar/retomar
 import { useSuspendedTrail } from '../context/SuspendedTrailContext';
 
-// Helpers
 const haversineMeters = (lat1, lon1, lat2, lon2) => {
   const R = 6371000;
   const toRad = d => (d * Math.PI) / 180;
@@ -46,7 +43,7 @@ export default function AtividadeScreen({ route, navigation }) {
   const [isLoading, setLoading] = useState(true);
   
   const item = route.params.item;
-  const TRAIL_API_BASE_URL = 'http://200.144.255.186:2281'; // Mantive seu IP
+  const TRAIL_API_BASE_URL = 'http://200.144.255.186:2281'; 
 
   const [fontsLoaded] = useFonts({
     'BebasNeue': require('../assets/fonts/BebasNeue.ttf'),
@@ -87,7 +84,7 @@ export default function AtividadeScreen({ route, navigation }) {
     } else {
       getTrees();
     }
-  }, []); // Executa apenas uma vez na montagem
+  }, []); 
 
   // Lógica de GPS
   useEffect(() => {
@@ -131,7 +128,6 @@ export default function AtividadeScreen({ route, navigation }) {
     }
   }, [coords, arvore, data]);
 
-  // [CORREÇÃO 1] Atualiza contador ao voltar do Scanner com sucesso
   useEffect(() => {
     if (route.params?.sucess) {
       setArvore(prev => {
@@ -139,18 +135,14 @@ export default function AtividadeScreen({ route, navigation }) {
         return novoValor;
       });
       
-      // Soma a distância da próxima árvore (se existir)
       const nextDist = data[arvore + 1]?.distance ?? 0;
       setDistancia(prev => prev + nextDist);
 
-      // Limpa o parâmetro para não rodar de novo
       navigation.setParams({ sucess: null });
     }
   }, [route.params?.sucess]);
 
-  // [CORREÇÃO 2] Detecta FIM DA TRILHA e navega
   useEffect(() => {
-    // Se temos dados e o contador chegou no total
     if (data.length > 0 && arvore >= item.n_trees) {
       setStart(false); // Para o timer
       setFinish(true); // Marca como finalizado
