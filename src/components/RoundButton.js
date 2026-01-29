@@ -2,16 +2,16 @@ import React from 'react';
 import { Text, Pressable } from 'react-native';
 import { styles } from '../styles/styles';
 
-export default function RoundButton({ text, onPress }) {
+export default function RoundButton({ text, onPress, textStyle }) {
     return (
         <Pressable
             style={styles.roundButton}
             onPress={onPress}
         >
-            <Text style={{
+            <Text style={[{
                 color: 'white',
                 fontWeight: 'bold'
-            }}>{text}</Text>
+            }, textStyle]}>{text}</Text>
         </Pressable>
     )
 }
