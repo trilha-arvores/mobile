@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Text, View, ActivityIndicator, Alert, StyleSheet } from 'react-native';
+import { Text, View, ActivityIndicator, Alert, StyleSheet, ScrollView } from 'react-native';
 import { styles } from '../styles/styles';
 import RoundButton from '../components/RoundButton';
 import * as Progress from 'react-native-progress';
@@ -12,6 +12,7 @@ import * as Location from 'expo-location';
 import { useSuspendedTrail } from '../context/SuspendedTrailContext';
 import { API_BASE } from '../config/api';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
 export default function AtividadeScreen({ route, navigation }) {
   const { suspendTrail, clearSuspendedTrail } = useSuspendedTrail();
@@ -164,13 +165,14 @@ export default function AtividadeScreen({ route, navigation }) {
     return unsub;
   }, [navigation, finish, arvore, time, distancia, data]);
 
-  // Função segura para atualizar tempo
   const handleTimeUpdate = (newTime) => {
       setTime(newTime);
   };
   
   const currentTree = (Array.isArray(data) && data.length > arvore) ? data[arvore] : null;
-  const treeLabel = currentTree?.name ?? `Carregando...`;
+  const treeLabel = currentTree
+    ? `Nº${currentTree.esalq_id} - ${currentTree.name}`
+    : 'Carregando...';
   const initialLat = -22.71; 
   const initialLng = -47.63;
 
@@ -208,11 +210,18 @@ export default function AtividadeScreen({ route, navigation }) {
             )}
           </View>
 
-          <View style={{ flex: 5, backgroundColor: 'whitesmoke', overflow: 'hidden' }}>
+          {/* Container do Mapa com Posição Relativa para o Overlay funcionar */}
+          <View style={{ flex: 5, backgroundColor: 'whitesmoke', overflow: 'hidden', position: 'relative' }}>
              <MapView
                 ref={mapRef}
                 style={StyleSheet.absoluteFillObject}
                 provider={PROVIDER_GOOGLE}
+                
+
+                showsCompass={true} 
+                rotateEnabled={true} 
+                pitchEnabled={false} 
+                
                 showsUserLocation={false} 
                 showsMyLocationButton={false}
                 toolbarEnabled={false}
@@ -246,6 +255,20 @@ export default function AtividadeScreen({ route, navigation }) {
                   );
                 })}
              </MapView>
+
+             {/* [NOVO] Overlay: Rosa dos Ventos Fixa no Canto Superior Direito */}
+             <View style={localStyles.compassOverlay} pointerEvents="none">
+                <View style={{alignItems: 'center'}}>
+                    <Text style={[localStyles.cardinalText, {marginBottom: -5}]}>N</Text>
+                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                        <Text style={[localStyles.cardinalText, {marginRight: 4}]}>O</Text>
+                        <FontAwesome5 name="compass" size={32} color="#517300" />
+                        <Text style={[localStyles.cardinalText, {marginLeft: 4}]}>L</Text>
+                    </View>
+                    <Text style={[localStyles.cardinalText, {marginTop: -5}]}>S</Text>
+                </View>
+             </View>
+
           </View>
 
           <View style={{
@@ -262,7 +285,6 @@ export default function AtividadeScreen({ route, navigation }) {
                 <DistanceComponent distance={distancia.toFixed(2)} />
                 <View style={{ borderWidth: 0.5, height: '100%', backgroundColor: '#313131' }} />
                 
-                {}
                 <TimeComponent 
                     start={start && gpsReady} 
                     getTime={handleTimeUpdate} 
@@ -288,7 +310,8 @@ export default function AtividadeScreen({ route, navigation }) {
                :
                 <>
                   <FilledRoundButton text={start ? 'PAUSAR' : 'RETOMAR'} onPress={() => setStart(!start)} />
-                  <Compass text={'BÚSSOLA'} />
+                  {/* Mantive o componente Compass original aqui embaixo também */}
+                  <Compass text={'BÚSSOLA'} /> 
                   <RoundButton
                     style={styles.button}
                     text='CAMERA'
@@ -313,3 +336,29 @@ export default function AtividadeScreen({ route, navigation }) {
     </>
   )
 }
+
+// Estilos locais para o Overlay da Rosa dos Ventos
+const localStyles = StyleSheet.create({
+  compassOverlay: {
+    position: 'absolute',
+    top: 15,
+    right: 15,
+    backgroundColor: 'rgba(255, 255, 255, 0.85)',
+    borderRadius: 8,
+    padding: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    elevation: 4, // Sombra no Android
+    shadowColor: '#000', // Sombra no iOS
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  cardinalText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#313131',
+  }
+});
