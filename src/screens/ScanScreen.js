@@ -1,15 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  StyleSheet,
-  Text,
-  ActivityIndicator,
-  Alert
-} from 'react-native';
-import { styles } from '../styles/styles';
-import { colors } from '../styles/Colors';
+import React, { useState, useEffect, useMemo } from 'react';
+import { View, StyleSheet, Text, ActivityIndicator, SafeAreaView } from 'react-native';
 import { useCodeScanner, Camera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera';
 import ChangeColorButton from '../components/ChangeColorButton';
+import DefaultButton from '../components/DefaultButton';
+import { colors } from '../styles/Colors';
 
 const ERROR = -1;
 const WAITING = 0;
@@ -18,137 +12,251 @@ const SUCCESS = 1;
 export default function ScanScreen({ route, navigation }) {
   const device = useCameraDevice('back');
   const [scanState, setScanState] = useState(WAITING);
-  const [text, setText] = useState('Escaneie o código');
-  const [color, setColor] = useState('yellow'); 
-  
   const { hasPermission, requestPermission } = useCameraPermission();
-  
-  // Árvore alvo vinda da navegação
+
   const tree = route.params?.tree || {};
-  
-  // Solicita permissão ao carregar
+
   useEffect(() => {
     requestPermission();
-  }, []);
-
+  }, [requestPermission]);
 
   const extractIdFromQR = (qrValue) => {
     if (!qrValue) return '';
     const stringValue = String(qrValue).trim();
-    
-    // Verifica se tem o padrão "esalq_id =" (maiúsculo ou minúsculo)
+
     if (stringValue.toLowerCase().includes('esalq_id')) {
       const parts = stringValue.split('=');
-      // Pega a parte depois do igual e remove espaços
       if (parts.length > 1) {
         return parts[1].trim();
       }
     }
-    // Se não tiver o texto, retorna o valor original (caso mude o padrão no futuro)
+
     return stringValue;
   };
 
   const codeScanner = useCodeScanner({
     codeTypes: ['qr', 'ean-13'],
     onCodeScanned: (codes) => {
-      // Se já processou (Sucesso ou Erro), ignora novos scans
       if (scanState !== WAITING) return;
+      if (!codes.length) return;
 
-      if (codes.length > 0) {
-        const rawValue = codes[0].value;
-        const scannedId = extractIdFromQR(rawValue);
-        
-        // IDs para comparação (garantindo que sejam strings limpas)
-        const targetEsalqId = String(tree.esalq_id).trim();
-        const targetId = String(tree.id).trim();
+      const rawValue = codes[0].value;
+      const scannedId = extractIdFromQR(rawValue);
 
-        console.log(`Lido: ${rawValue} | Extraído: ${scannedId} | Alvo: ${targetEsalqId}`);
+      const targetEsalqId = String(tree.esalq_id).trim();
+      const targetId = String(tree.id).trim();
 
-        // Compara o ID extraído com o ID da árvore alvo
-        if (scannedId === targetEsalqId || scannedId === targetId) {
-          setScanState(SUCCESS);
-          
-          setTimeout(() => {
-            // Volta para AtividadeScreen sinalizando sucesso
-            navigation.navigate({
-              name: 'Atividade',
-              params: { sucess: true },
-              merge: true,
-            });
-          }, 1500); // Tempo para ver a mensagem de sucesso
+      if (scannedId === targetEsalqId || scannedId === targetId) {
+        setScanState(SUCCESS);
 
-        } else {
-          setScanState(ERROR);
-          
-          // Volta para estado de espera após 2 segundos
-          setTimeout(() => {
-            setScanState(WAITING);
-          }, 2000);
-        }
+        setTimeout(() => {
+          navigation.navigate({
+            name: 'Atividade',
+            params: { sucess: true },
+            merge: true,
+          });
+        }, 1300);
+      } else {
+        setScanState(ERROR);
+
+        setTimeout(() => {
+          setScanState(WAITING);
+        }, 1800);
       }
-    }
+    },
   });
 
-  // Feedback Visual
-  React.useEffect(() => {
-    switch (scanState) {
-      case WAITING:
-        setColor(colors.yellow || '#FFD700'); 
-        setText(`Procure a árvore: ${tree.name || '...'}`);
-        break;
-      case ERROR:
-        setColor(colors.red || '#FF0000');
-        setText('QR Code Incorreto! Tente outra árvore.');
-        break;
-      case SUCCESS:
-        setColor(colors.green || '#32CD32');
-        setText('Sucesso! Árvore correta.');
-        break;
+  const status = useMemo(() => {
+    if (scanState === SUCCESS) {
+      return {
+        color: colors.green,
+        text: 'Checkpoint confirmado. Voltando para a trilha...',
+      };
     }
+
+    if (scanState === ERROR) {
+      return {
+        color: colors.red,
+        text: 'QR Code incorreto. Confira o nome da arvore e tente novamente.',
+      };
+    }
+
+    return {
+      color: colors.yellow,
+      text: `Escaneie o QR Code da arvore: ${tree.name || 'checkpoint atual'}`,
+    };
   }, [scanState, tree.name]);
 
-  if (!hasPermission) return (
-    <View style={[styles.container, {justifyContent: 'center', alignItems: 'center'}]}>
-      <Text>Sem permissão de câmera</Text>
-    </View>
-  );
-  
-  if (!device) return (
-    <View style={[styles.container, {justifyContent: 'center', alignItems: 'center'}]}>
-      <ActivityIndicator size="large" color="#000" />
-      <Text>Carregando câmera...</Text>
-    </View>
-  );
+  if (!hasPermission) {
+    return (
+      <SafeAreaView style={localStyles.permissionScreen}>
+        <Text style={localStyles.permissionTitle}>Permissao de camera necessaria</Text>
+        <Text style={localStyles.permissionText}>
+          Para validar checkpoints por QR Code, permita o uso da camera no dispositivo.
+        </Text>
+        <DefaultButton
+          text="PERMITIR CAMERA"
+          onPress={requestPermission}
+          style={localStyles.permissionButton}
+          accessibilityLabel="Solicitar permissao da camera"
+        />
+      </SafeAreaView>
+    );
+  }
+
+  if (!device) {
+    return (
+      <SafeAreaView style={localStyles.permissionScreen}>
+        <ActivityIndicator size="large" color={colors.green} />
+        <Text style={localStyles.permissionText}>Carregando camera...</Text>
+      </SafeAreaView>
+    );
+  }
 
   return (
-    <>
-      <View style={[styles.item, { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }]}>
-        <ChangeColorButton
-          text={text}
-          color={color}
-        />
+    <SafeAreaView style={localStyles.screen}>
+      <View style={localStyles.topBanner}>
+        <ChangeColorButton text={status.text} color={status.color} />
       </View>
-      <View style={{ flex: 9, backgroundColor: '#000' }}>
-        <Camera 
-          style={StyleSheet.absoluteFill} 
-          device={device} 
-          isActive={true} 
-          codeScanner={codeScanner} 
-        />
-        
-        {/* Mira Central (Visual Aid) */}
-        <View style={{
-            position: 'absolute',
-            top: 0, left: 0, right: 0, bottom: 0,
-            justifyContent: 'center', alignItems: 'center'
-        }}>
-            <View style={{
-                width: 250, height: 250,
-                borderWidth: 2, borderColor: 'rgba(255,255,255,0.5)',
-                borderRadius: 20
-            }} />
+
+      <View style={localStyles.cameraWrapper}>
+        <Camera style={StyleSheet.absoluteFill} device={device} isActive codeScanner={codeScanner} />
+
+        <View style={localStyles.overlay} pointerEvents="none">
+          <View style={localStyles.frame}>
+            <View style={localStyles.cornerTopLeft} />
+            <View style={localStyles.cornerTopRight} />
+            <View style={localStyles.cornerBottomLeft} />
+            <View style={localStyles.cornerBottomRight} />
+          </View>
+          <Text style={localStyles.overlayText}>Centralize o QR Code dentro da moldura.</Text>
         </View>
       </View>
-    </>
+
+      <View style={localStyles.footerHelp}>
+        <Text style={localStyles.footerText}>Dica: use boa iluminacao para leitura mais rapida.</Text>
+      </View>
+    </SafeAreaView>
   );
 }
+
+const localStyles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
+  topBanner: {
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    backgroundColor: '#000',
+  },
+  cameraWrapper: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+  },
+  frame: {
+    width: 270,
+    height: 270,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.55)',
+  },
+  cornerTopLeft: {
+    position: 'absolute',
+    top: -1,
+    left: -1,
+    width: 36,
+    height: 36,
+    borderTopWidth: 4,
+    borderLeftWidth: 4,
+    borderColor: colors.green,
+    borderTopLeftRadius: 16,
+  },
+  cornerTopRight: {
+    position: 'absolute',
+    top: -1,
+    right: -1,
+    width: 36,
+    height: 36,
+    borderTopWidth: 4,
+    borderRightWidth: 4,
+    borderColor: colors.green,
+    borderTopRightRadius: 16,
+  },
+  cornerBottomLeft: {
+    position: 'absolute',
+    bottom: -1,
+    left: -1,
+    width: 36,
+    height: 36,
+    borderBottomWidth: 4,
+    borderLeftWidth: 4,
+    borderColor: colors.green,
+    borderBottomLeftRadius: 16,
+  },
+  cornerBottomRight: {
+    position: 'absolute',
+    bottom: -1,
+    right: -1,
+    width: 36,
+    height: 36,
+    borderBottomWidth: 4,
+    borderRightWidth: 4,
+    borderColor: colors.green,
+    borderBottomRightRadius: 16,
+  },
+  overlayText: {
+    marginTop: 14,
+    color: colors.white,
+    fontSize: 14,
+    fontWeight: '600',
+    textAlign: 'center',
+    textShadowColor: 'rgba(0,0,0,0.35)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  footerHelp: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    backgroundColor: '#000',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.2)',
+  },
+  footerText: {
+    color: '#dedede',
+    fontSize: 13,
+    textAlign: 'center',
+  },
+  permissionScreen: {
+    flex: 1,
+    backgroundColor: colors.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 22,
+  },
+  permissionTitle: {
+    color: colors.black,
+    fontSize: 22,
+    fontWeight: '800',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  permissionText: {
+    color: colors.textSecondary,
+    fontSize: 15,
+    lineHeight: 22,
+    textAlign: 'center',
+    marginTop: 6,
+  },
+  permissionButton: {
+    marginTop: 20,
+    width: '100%',
+    maxWidth: 320,
+  },
+});

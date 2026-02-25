@@ -1,101 +1,183 @@
 import React from 'react';
-import { View, Text, Image, ScrollView } from 'react-native';
+import { View, Text, Image, ScrollView, StyleSheet, SafeAreaView } from 'react-native';
 import DefaultButton from '../components/DefaultButton';
-import { styles } from '../styles/styles';
 import { useFonts } from 'expo-font';
 import { normalizeUrl } from '../config/api';
-
-// Ícones
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import { colors } from '../styles/Colors';
 
 export default function IniciarScreen({ route, navigation }) {
   const item = route.params.item;
 
-  const [fontsLoaded] = useFonts({
-    'BebasNeue': require('../assets/fonts/BebasNeue.ttf'),
+  useFonts({
+    BebasNeue: require('../assets/fonts/BebasNeue.ttf'),
   });
 
   return (
-    <View style={{ flex: 1, backgroundColor: 'white' }}>
-      {/* Imagem do Topo */}
-      <View style={{ flex: 4, backgroundColor: 'whitesmoke' }}>
-        <Image
-          style={{ height: '100%', width: 'undefined', resizeMode: 'cover' }}
-          source={{ uri: normalizeUrl(item.thumb_img) }}
-        />
+    <SafeAreaView style={localStyles.screen}>
+      <View style={localStyles.imageHeader}>
+        <Image style={localStyles.image} source={{ uri: normalizeUrl(item.thumb_img) }} />
       </View>
 
-      {/* Card de Informações */}
-      <View style={{
-        flex: 5,
-        backgroundColor: 'white',
-        borderTopLeftRadius: 30,
-        borderTopRightRadius: 30,
-        marginTop: -30, // Efeito de sobreposição na imagem
-        padding: 20,
-        justifyContent: 'space-between'
-      }}>
+      <View style={localStyles.contentCard}>
+        <ScrollView contentContainerStyle={localStyles.scrollContent} showsVerticalScrollIndicator={false}>
+          <Text style={localStyles.title}>{item.name}</Text>
 
-        <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
-          {/* Título e Subtítulo */}
-          <View style={{ alignItems: 'center', marginBottom: 20 }}>
-            <Text style={[styles.title, { textAlign: 'center', fontSize: 28 }]}>
-              {item.name}
-            </Text>
-            <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 10 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginHorizontal: 15 }}>
-                <FontAwesome5 name="route" size={20} color="#517300" style={{ marginRight: 8 }} />
-                <Text style={{ fontFamily: 'BebasNeue', fontSize: 20, color: '#313131' }}>
-                  {item.distance} KM
-                </Text>
-              </View>
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginHorizontal: 15 }}>
-                <FontAwesome5 name="tree" size={20} color="#517300" style={{ marginRight: 8 }} />
-                <Text style={{ fontFamily: 'BebasNeue', fontSize: 20, color: '#313131' }}>
-                  {item.n_trees} ÁRVORES
-                </Text>
-              </View>
+          <View style={localStyles.metricsRow}>
+            <View style={localStyles.metricChip}>
+              <FontAwesome5 name="route" size={16} color={colors.green} />
+              <Text style={localStyles.metricText}>{item.distance} km</Text>
+            </View>
+            <View style={localStyles.metricChip}>
+              <FontAwesome5 name="tree" size={16} color={colors.green} />
+              <Text style={localStyles.metricText}>{item.n_trees} checkpoints</Text>
             </View>
           </View>
 
-          {/* Descrição / Texto de Apoio */}
-          <Text style={{
-            fontSize: 16,
-            color: '#666',
-            textAlign: 'justify',
-            lineHeight: 24,
-            marginBottom: 20
-          }}>
-            Esta trilha levará você por um passeio educativo pelas árvores mais icônicas do campus.
-            Prepare-se para caminhar, observar e aprender. Certifique-se de estar com o GPS ativado e bateria carregada.
-          </Text>
+          <Text style={localStyles.sectionTitle}>Como funciona</Text>
+          <View style={localStyles.infoBox}>
+            <Text style={localStyles.infoLine}>1. Siga o mapa ate o checkpoint indicado.</Text>
+            <Text style={localStyles.infoLine}>2. Escaneie o QR Code da arvore correta.</Text>
+            <Text style={localStyles.infoLine}>3. Repita ate completar todos os checkpoints.</Text>
+          </View>
 
-          {/* Dificuldade (Opcional, visual)
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
-            <Text style={{ fontWeight: 'bold', color: '#313131', marginRight: 10 }}>DIFICULDADE:</Text>
-            <View style={{ flexDirection: 'row' }}>
-              {[1, 2, 3].map((star) => (
-                <FontAwesome5 key={star} name="star" solid size={14} color="#FFD700" style={{ marginRight: 2 }} />
-              ))}
-            </View>
-          </View> */}
-
+          <Text style={localStyles.sectionTitle}>Antes de iniciar</Text>
+          <View style={localStyles.checklistBox}>
+            <ChecklistItem text="Ative localizacao (GPS)." />
+            <ChecklistItem text="Permita acesso a camera para leitura de QR Code." />
+            <ChecklistItem text="Garanta bateria suficiente para toda a trilha." />
+          </View>
         </ScrollView>
 
-        {/* Botão de Ação */}
-        <View style={{ 
-          paddingTop: 10, 
-          alignItems: 'center' }}>
+        <View style={localStyles.actionArea}>
           <DefaultButton
-            text="COMEÇAR TRILHA"
+            text="COMECAR TRILHA"
             onPress={() => {
-              // [CORREÇÃO] Usamos replace para remover esta tela da pilha
-              // Assim, ao voltar da Atividade, o usuário cai direto na lista de Trilhas
               navigation.replace('Atividade', { item });
             }}
+            accessibilityLabel="Comecar esta trilha"
+            style={localStyles.startButton}
           />
         </View>
       </View>
+    </SafeAreaView>
+  );
+}
+
+function ChecklistItem({ text }) {
+  return (
+    <View style={localStyles.checkItem}>
+      <FontAwesome5 name="check-circle" size={15} color={colors.green} />
+      <Text style={localStyles.checkText}>{text}</Text>
     </View>
   );
 }
+
+const localStyles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: colors.white,
+  },
+  imageHeader: {
+    flex: 3.7,
+    backgroundColor: colors.mutedSurface,
+  },
+  image: {
+    height: '100%',
+    width: '100%',
+    resizeMode: 'cover',
+  },
+  contentCard: {
+    flex: 5,
+    backgroundColor: colors.white,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    marginTop: -28,
+    paddingHorizontal: 20,
+    paddingTop: 18,
+    paddingBottom: 12,
+  },
+  scrollContent: {
+    paddingBottom: 12,
+  },
+  title: {
+    color: colors.black,
+    fontSize: 28,
+    fontWeight: '800',
+    textAlign: 'center',
+  },
+  metricsRow: {
+    marginTop: 14,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  metricChip: {
+    minWidth: 138,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: '#fafcfb',
+  },
+  metricText: {
+    color: colors.black,
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  sectionTitle: {
+    marginTop: 16,
+    marginBottom: 8,
+    color: colors.black,
+    fontSize: 16,
+    fontWeight: '800',
+  },
+  infoBox: {
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#e6ebe8',
+    backgroundColor: '#f9fbfa',
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    gap: 6,
+  },
+  infoLine: {
+    color: colors.black,
+    fontSize: 14,
+    lineHeight: 21,
+  },
+  checklistBox: {
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#f0dfb8',
+    backgroundColor: '#fff9ec',
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    gap: 8,
+  },
+  checkItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+  },
+  checkText: {
+    flex: 1,
+    color: colors.black,
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  actionArea: {
+    paddingTop: 10,
+    alignItems: 'center',
+  },
+  startButton: {
+    width: '100%',
+    maxWidth: 340,
+  },
+});

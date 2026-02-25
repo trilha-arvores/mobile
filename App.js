@@ -1,95 +1,80 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import HomeScreen from './src/screens/HomeScreen'
-import FinalScreen from './src/screens/FinalScreen'
-import AtividadeScreen from './src/screens/AtividadeScreen'
-import IniciarScreen from './src/screens/IniciarScreen'
-import ScanScreen from './src/screens/ScanScreen'
-import TrilhasScreen from './src/screens/TrilhasScreen'
+import { StatusBar } from 'expo-status-bar';
+import HomeScreen from './src/screens/HomeScreen';
+import FinalScreen from './src/screens/FinalScreen';
+import AtividadeScreen from './src/screens/AtividadeScreen';
+import IniciarScreen from './src/screens/IniciarScreen';
+import ScanScreen from './src/screens/ScanScreen';
+import TrilhasScreen from './src/screens/TrilhasScreen';
 import UserScreen from './src/screens/UserScreen';
 import SobreScreen from './src/screens/SobreScreen';
-// [NOVO] Importar o Provider
 import { SuspendedTrailProvider } from './src/context/SuspendedTrailContext';
+import { colors } from './src/styles/Colors';
 
 const Stack = createNativeStackNavigator();
 
-const config = {
-  animation: 'spring',
-  config: {
-    stiffness: 1000,
-    damping: 500,
-    mass: 3,
-    overshootClamping: true,
-    restDisplacementThreshold: 0.01,
-    restSpeedThreshold: 0.01,
-  },
-};
-
 export default function App() {
   return (
-    // [NOVO] Envolvendo a navegação com o Provider
     <SuspendedTrailProvider>
+      <StatusBar style="dark" />
       <NavigationContainer>
-        <Stack.Navigator>
+        <Stack.Navigator
+          screenOptions={{
+            headerTitleAlign: 'center',
+            headerStyle: {
+              backgroundColor: colors.white,
+            },
+            headerShadowVisible: false,
+            headerTintColor: colors.green,
+            headerTitleStyle: {
+              color: colors.black,
+              fontWeight: '700',
+              fontSize: 17,
+            },
+            contentStyle: {
+              backgroundColor: colors.white,
+            },
+            animation: 'slide_from_right',
+          }}
+        >
           <Stack.Screen
             name="Home"
             component={HomeScreen}
-            options={{ title: 'Início', headerShown: false }}
+            options={{ title: 'Inicio', headerShown: false }}
           />
-          <Stack.Screen
-            name="Trilhas"
-            component={TrilhasScreen}
-            options={{ headerTitleAlign: 'center' }}
-          />
+          <Stack.Screen name="Trilhas" component={TrilhasScreen} options={{ title: 'Trilhas Disponiveis' }} />
           <Stack.Screen
             name="Iniciar"
             component={IniciarScreen}
             options={({ route }) => ({
-              title: route.params.item.name,
-              headerTitleAlign: 'center'
-            })
-            }
+              title: route.params?.item?.name || 'Iniciar trilha',
+            })}
           />
           <Stack.Screen
             name="Atividade"
             component={AtividadeScreen}
             options={({ route }) => ({
-              title: route.params.item.name,
-              headerTitleAlign: 'center'
-            })
-            }
+              title: route.params?.item?.name || 'Atividade',
+            })}
           />
           <Stack.Screen
             name="Final"
             component={FinalScreen}
             options={({ route }) => ({
-              title: route.params.item.name,
-              headerTitleAlign: 'center'
-            })
-            }
+              title: route.params?.item?.name || 'Resultado',
+            })}
           />
           <Stack.Screen
             name="Escanear"
             component={ScanScreen}
             options={({ route }) => ({
-              title: `${route.params.tree.name}: ${route.params.tree.id}`,
-              headerTitleAlign: 'center'
-            })
-            }
+              title: route.params?.tree?.name || 'Escanear checkpoint',
+            })}
           />
-          <Stack.Screen
-            name="Sobre"
-            component={SobreScreen}
-            options={{ title: 'Sobre', headerTitleAlign: 'center' }}
-          />
-          <Stack.Screen
-            name="Perfil"
-            component={UserScreen}
-            options={{ title: 'Perfil do Usuário', headerTitleAlign: 'center' }}
-          />
-
+          <Stack.Screen name="Sobre" component={SobreScreen} options={{ title: 'Sobre o Projeto' }} />
+          <Stack.Screen name="Perfil" component={UserScreen} options={{ title: 'Perfil do Usuario' }} />
         </Stack.Navigator>
       </NavigationContainer>
     </SuspendedTrailProvider>

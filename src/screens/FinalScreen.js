@@ -1,25 +1,21 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, Image, ScrollView, StyleSheet, ActivityIndicator, Alert } from 'react-native';
-import FilledRoundButton from '../components/FilledRoundButton';
-import RoundButton from '../components/RoundButton';
-import { styles } from '../styles/styles';
+import { View, Text, Image, ScrollView, StyleSheet, ActivityIndicator, Alert, SafeAreaView } from 'react-native';
+import DefaultButton from '../components/DefaultButton';
 import { useFonts } from 'expo-font';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { API_BASE, normalizeUrl } from '../config/api';
-
 import { captureRef } from 'react-native-view-shot';
-import * as Sharing from 'expo-sharing'; 
+import * as Sharing from 'expo-sharing';
+import { colors } from '../styles/Colors';
 
 export default function FinalScreen({ route, navigation }) {
   const { tempo: time, distancia, item } = route.params;
   const [isLoading, setLoading] = useState(true);
   const [trees, setTrees] = useState([]);
-
-  // Referência para a view que será capturada (print)
   const viewRef = useRef();
 
   const [fontsLoaded] = useFonts({
-    'BebasNeue': require('../assets/fonts/BebasNeue.ttf'),
+    BebasNeue: require('../assets/fonts/BebasNeue.ttf'),
   });
 
   const formatTime = (totalSeconds) => {
@@ -28,9 +24,7 @@ export default function FinalScreen({ route, navigation }) {
     const getMinutes = `0${minutes % 60}`.slice(-2);
     const getHours = `0${Math.floor(totalSeconds / 3600)}`.slice(-2);
 
-    if (getHours === '00') {
-      return `${getMinutes}:${getSeconds}`;
-    }
+    if (getHours === '00') return `${getMinutes}:${getSeconds}`;
     return `${getHours}:${getMinutes}:${getSeconds}`;
   };
 
@@ -38,6 +32,11 @@ export default function FinalScreen({ route, navigation }) {
     try {
       setLoading(true);
       const response = await fetch(`${API_BASE}/trails/${item.id}/trees`);
+
+      if (!response.ok) {
+        throw new Error(`Servidor retornou status ${response.status}.`);
+      }
+
       const result = await response.json();
 
       let treeList = [];
@@ -45,7 +44,7 @@ export default function FinalScreen({ route, navigation }) {
         treeList = result;
       } else if (typeof result === 'object' && result !== null) {
         const values = Object.values(result);
-        if (values.length > 0 && values[0].name) {
+        if (values.length > 0 && values[0]?.name) {
           treeList = values;
         } else if (Array.isArray(result.rows)) {
           treeList = result.rows;
@@ -53,10 +52,11 @@ export default function FinalScreen({ route, navigation }) {
           treeList = result.data;
         }
       }
+
       setTrees(treeList);
     } catch (error) {
-      console.error("Erro ao buscar árvores na tela final:", error);
-      Alert.alert("Erro", "Não foi possível carregar a lista de árvores visitadas.");
+      console.error('Erro ao buscar arvores na tela final:', error);
+      Alert.alert('Erro', 'Nao foi possivel carregar a lista de arvores visitadas.');
     } finally {
       setLoading(false);
     }
@@ -69,210 +69,287 @@ export default function FinalScreen({ route, navigation }) {
   const handleShare = async () => {
     try {
       if (!(await Sharing.isAvailableAsync())) {
-        Alert.alert("Indisponível", "O compartilhamento não está disponível neste dispositivo.");
+        Alert.alert('Indisponivel', 'O compartilhamento nao esta disponivel neste dispositivo.');
         return;
       }
 
       const uri = await captureRef(viewRef, {
-        format: "jpg",
+        format: 'jpg',
         quality: 0.9,
-        result: "tmpfile", // Cria um arquivo temporário
+        result: 'tmpfile',
       });
 
       await Sharing.shareAsync(uri, {
         mimeType: 'image/jpeg',
-        dialogTitle: 'Compartilhar Conquista',
-        UTI: 'public.jpeg'
+        dialogTitle: 'Compartilhar conquista',
+        UTI: 'public.jpeg',
       });
-
     } catch (error) {
       console.log('Erro ao compartilhar:', error);
-      Alert.alert('Erro', 'Não foi possível gerar a imagem para compartilhamento.');
+      Alert.alert('Erro', 'Nao foi possivel gerar a imagem para compartilhamento.');
     }
   };
 
   if (!fontsLoaded || isLoading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#517300" />
-        <Text style={{ marginTop: 10 }}>Gerando relatório...</Text>
-      </View>
+      <SafeAreaView style={localStyles.loadingScreen}>
+        <ActivityIndicator size="large" color={colors.green} />
+        <Text style={localStyles.loadingText}>Gerando resumo da atividade...</Text>
+      </SafeAreaView>
     );
   }
 
   return (
-    // viewRef captura TUDO o que está dentro desta View
-    <View ref={viewRef} collapsable={false} style={{ flex: 1, backgroundColor: 'white' }}>
-      
-      {/* --- Imagem do Topo (Flex 2) --- */}
-      <View style={{ flex: 2, backgroundColor: 'teal' }}>
-        <Image
-          style={{ height: '100%', width: '100%', resizeMode: 'cover' }}
-          source={{ uri: normalizeUrl(item.thumb_img) }}
-        />
-        <View style={{
-          ...StyleSheet.absoluteFillObject,
-          backgroundColor: 'rgba(0,0,0,0.3)'
-        }} />
-        <View style={{ position: 'absolute', bottom: 40, left: 20 }}>
-          <Text style={[styles.title, { color: 'white', fontSize: 32, marginBottom: 5 }]}>
-            PARABÉNS!
-          </Text>
-          <Text style={{ color: 'white', fontSize: 18, fontWeight: '600' }}>
-            Você concluiu a trilha {item.name}
-          </Text>
-        </View>
-      </View>
-
-      {/* --- Corpo Principal (Lista de Árvores) (Flex 5) --- */}
-      <View style={{
-        flex: 5,
-        backgroundColor: 'white',
-        borderTopLeftRadius: 30,
-        borderTopRightRadius: 30,
-        marginTop: -30,
-        paddingTop: 25,
-        paddingHorizontal: 20,
-      }}>
-        <View style={{ alignItems: 'center', marginBottom: 15 }}>
-          <Text style={{ fontSize: 18, color: '#313131', fontWeight: 'bold' }}>
-            RESUMO DA JORNADA
-          </Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
-            <FontAwesome5 name="tree" size={16} color="#517300" style={{ marginRight: 8 }} />
-            <Text style={{ fontSize: 16, color: '#666' }}>
-              {trees.length} árvores visitadas
-            </Text>
+    <View ref={viewRef} collapsable={false} style={localStyles.root}>
+      <SafeAreaView style={localStyles.safeArea}>
+        <View style={localStyles.heroSection}>
+          <Image style={localStyles.heroImage} source={{ uri: normalizeUrl(item.thumb_img) }} />
+          <View style={localStyles.heroOverlay} />
+          <View style={localStyles.heroTextWrap}>
+            <Text style={localStyles.heroTitle}>Parabens!</Text>
+            <Text style={localStyles.heroSubtitle}>Voce concluiu a trilha {item.name}</Text>
           </View>
         </View>
 
-        <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 10, color: '#313131' }}>
-          Árvores Encontradas:
-        </Text>
+        <View style={localStyles.contentCard}>
+          <View style={localStyles.summaryHeader}>
+            <Text style={localStyles.summaryTitle}>Resumo da jornada</Text>
+            <Text style={localStyles.summarySub}>Todos os checkpoints foram finalizados.</Text>
+          </View>
 
-        <ScrollView contentContainerStyle={{ paddingBottom: 20 }} showsVerticalScrollIndicator={false}>
-          {trees.map((tree, index) => (
-            <View key={tree.id || index} style={localStyles.treeItemContainer}>
-              <View style={localStyles.treeIconContainer}>
-                <FontAwesome5 name="check" size={14} color="white" />
-              </View>
-              <Text style={localStyles.treeName}>
-                {index + 1}. {tree.name}
-              </Text>
+          <View style={localStyles.statsRow}>
+            <View style={localStyles.statBlock}>
+              <Text style={localStyles.statLabel}>DISTANCIA</Text>
+              <Text style={[localStyles.statValue, fontsLoaded && localStyles.statValueFont]}>{distancia}</Text>
+              <Text style={localStyles.statUnit}>KM</Text>
             </View>
-          ))}
-        </ScrollView>
-      </View>
 
-      {/* --- Rodapé com Estatísticas e Botões (Flex 2.5) --- */}
-      <View style={localStyles.bottomContainer}>
-        
-        {/* Bloco de Estatísticas */}
-        <View style={localStyles.statsRow}>
-          
-          <View style={localStyles.statBlock}>
-            <Text style={localStyles.statLabel}>DISTÂNCIA</Text>
-            <Text style={localStyles.statValueBebas}>{distancia}</Text>
-            <Text style={localStyles.statUnit}>KM</Text>
+            <View style={localStyles.verticalDivider} />
+
+            <View style={localStyles.statBlock}>
+              <Text style={localStyles.statLabel}>TEMPO</Text>
+              <Text style={[localStyles.statValue, fontsLoaded && localStyles.statValueFont]}>{formatTime(time)}</Text>
+              <Text style={localStyles.statUnit}>TOTAL</Text>
+            </View>
           </View>
 
-          <View style={localStyles.verticalDivider} />
-
-          <View style={localStyles.statBlock}>
-            <Text style={localStyles.statLabel}>TEMPO TOTAL</Text>
-            <Text style={localStyles.statValueBebas}>{formatTime(time)}</Text>
-            <Text style={localStyles.statUnit}> </Text>
+          <View style={localStyles.checkpointsHeader}>
+            <FontAwesome5 name="tree" size={15} color={colors.green} />
+            <Text style={localStyles.checkpointsTitle}>Arvores visitadas: {trees.length}</Text>
           </View>
 
-        </View>
+          <ScrollView contentContainerStyle={localStyles.listContainer} showsVerticalScrollIndicator={false}>
+            {trees.length > 0 ? (
+              trees.map((tree, index) => (
+                <View key={tree.id || index} style={localStyles.treeItemContainer}>
+                  <View style={localStyles.treeIconContainer}>
+                    <FontAwesome5 name="check" size={12} color={colors.white} />
+                  </View>
+                  <Text style={localStyles.treeName} numberOfLines={2}>
+                    {index + 1}. {tree.name}
+                  </Text>
+                </View>
+              ))
+            ) : (
+              <Text style={localStyles.emptyText}>A lista de arvores nao esta disponivel no momento.</Text>
+            )}
+          </ScrollView>
 
-        {/* Bloco de Botões */}
-        <View style={localStyles.buttonsRow}>
-          <FilledRoundButton
-            text='INÍCIO'
-            onPress={() => navigation.popToTop()}
-          />
-          <RoundButton
-            style={styles.button}
-            text='COMPARTILHAR'
-            textStyle={{fontSize: 10}}
-            onPress={handleShare}
-          />
+          <View style={localStyles.actionsRow}>
+            <DefaultButton
+              text="VOLTAR AO INICIO"
+              onPress={() => navigation.popToTop()}
+              style={localStyles.actionButton}
+              accessibilityLabel="Voltar para a tela inicial"
+            />
+            <DefaultButton
+              text="COMPARTILHAR RESULTADO"
+              onPress={handleShare}
+              style={[localStyles.actionButton, localStyles.secondaryAction]}
+              accessibilityLabel="Compartilhar resultado da trilha"
+            />
+          </View>
         </View>
-      </View>
+      </SafeAreaView>
     </View>
   );
 }
 
 const localStyles = StyleSheet.create({
-  treeItemContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f9f9f9',
-    padding: 12,
-    borderRadius: 12,
-    marginBottom: 8,
+  root: {
+    flex: 1,
+    backgroundColor: colors.white,
   },
-  treeIconContainer: {
-    backgroundColor: '#517300',
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.white,
+  },
+  loadingScreen: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    backgroundColor: colors.white,
   },
-  treeName: {
+  loadingText: {
+    marginTop: 10,
+    color: colors.textSecondary,
+    fontSize: 15,
+  },
+  heroSection: {
+    flex: 2,
+    backgroundColor: colors.green,
+  },
+  heroImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  heroOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: colors.overlay,
+  },
+  heroTextWrap: {
+    position: 'absolute',
+    left: 20,
+    right: 20,
+    bottom: 28,
+  },
+  heroTitle: {
+    color: colors.white,
+    fontSize: 34,
+    fontWeight: '900',
+  },
+  heroSubtitle: {
+    marginTop: 3,
+    color: colors.white,
     fontSize: 16,
-    color: '#313131',
+    fontWeight: '600',
   },
-  bottomContainer: {
-    flex: 2.5,
-    backgroundColor: '#fdfdfd',
-    borderTopWidth: 1,
-    borderColor: '#e0e0e0',
-    paddingVertical: 20,
-    justifyContent: 'space-between',
+  contentCard: {
+    flex: 5,
+    marginTop: -24,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    backgroundColor: colors.white,
+    paddingTop: 18,
+    paddingHorizontal: 18,
+    paddingBottom: 12,
   },
-  statsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
+  summaryHeader: {
     alignItems: 'center',
     marginBottom: 10,
   },
-  statBlock: {
+  summaryTitle: {
+    color: colors.black,
+    fontSize: 21,
+    fontWeight: '800',
+    textAlign: 'center',
+  },
+  summarySub: {
+    marginTop: 3,
+    color: colors.textSecondary,
+    fontSize: 13,
+    textAlign: 'center',
+  },
+  statsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    justifyContent: 'center',
-    minWidth: 100,
+    borderWidth: 1,
+    borderColor: '#e1e7e4',
+    borderRadius: 12,
+    backgroundColor: '#f9fbfa',
+    paddingVertical: 10,
+    paddingHorizontal: 6,
+  },
+  statBlock: {
+    flex: 1,
+    alignItems: 'center',
   },
   statLabel: {
-    color: '#666',
-    fontSize: 13,
-    letterSpacing: 1.2,
-    marginBottom: 2,
+    color: colors.textSecondary,
+    fontSize: 11,
+    letterSpacing: 1,
+    fontWeight: '700',
   },
-  statValueBebas: {
+  statValue: {
+    color: colors.black,
+    fontSize: 34,
+    fontWeight: '800',
+    marginTop: 2,
+  },
+  statValueFont: {
     fontFamily: 'BebasNeue',
     fontSize: 52,
-    color: '#313131',
-    lineHeight: 55,
-    includeFontPadding: false,
+    fontWeight: '400',
+    lineHeight: 56,
   },
   statUnit: {
-    color: '#666',
-    fontSize: 14,
-    fontWeight: 'bold',
-    marginTop: -5,
+    color: colors.black,
+    fontSize: 12,
+    fontWeight: '700',
+    marginTop: -1,
   },
   verticalDivider: {
     width: 1,
-    height: 50,
-    backgroundColor: '#e0e0e0',
+    height: 56,
+    backgroundColor: colors.border,
   },
-  buttonsRow: {
+  checkpointsHeader: {
+    marginTop: 12,
+    marginBottom: 8,
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingHorizontal: 30,
+    alignItems: 'center',
+    gap: 7,
+  },
+  checkpointsTitle: {
+    color: colors.black,
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  listContainer: {
     paddingBottom: 10,
+  },
+  treeItemContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f8faf9',
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    borderRadius: 11,
+    marginBottom: 7,
+    borderWidth: 1,
+    borderColor: '#e3e9e6',
+  },
+  treeIconContainer: {
+    backgroundColor: colors.green,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  treeName: {
+    flex: 1,
+    fontSize: 14,
+    color: colors.black,
+  },
+  emptyText: {
+    color: colors.textSecondary,
+    textAlign: 'center',
+    fontSize: 13,
+    marginTop: 8,
+  },
+  actionsRow: {
+    marginTop: 8,
+    gap: 8,
+  },
+  actionButton: {
+    width: '100%',
+  },
+  secondaryAction: {
+    backgroundColor: colors.black,
+    borderColor: colors.black,
   },
 });
