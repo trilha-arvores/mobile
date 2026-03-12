@@ -339,12 +339,19 @@ export default function AtividadeScreen({ route, navigation }) {
               if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
 
               let pinColor = '#2f6f8f';
-              if (index < arvore) pinColor = colors.green;
-              if (index === arvore) pinColor = colors.red;
+              let statusKey = 'next';
+              if (index < arvore) {
+                pinColor = colors.green;
+                statusKey = 'visited';
+              }
+              if (index === arvore) {
+                pinColor = colors.red;
+                statusKey = 'current';
+              }
 
               return (
                 <Marker
-                  key={`tree-${tree.id || index}`}
+                  key={`tree-${tree.id || index}-${statusKey}`}
                   coordinate={{ latitude, longitude }}
                   title={`${index + 1}. ${tree.name}`}
                   pinColor={pinColor}

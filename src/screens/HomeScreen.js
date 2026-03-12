@@ -34,11 +34,8 @@ export default function HomeScreen({ navigation }) {
             colors={['rgba(0,0,0,0.10)', 'rgba(0,0,0,0.15)', 'rgba(253,253,253,0.95)', colors.white]}
             style={localStyles.heroGradient}
           >
-            <View style={localStyles.heroTextBlock}>
-              <Text style={localStyles.heroEyebrow}>CORRIDA GUIADA</Text>
-              <Text style={localStyles.heroText}>Mapa ao vivo e checkpoints em QR Code pelas arvores.</Text>
-            </View>
           </LinearGradient>
+          
         </ImageBackground>
       </View>
 
@@ -47,7 +44,7 @@ export default function HomeScreen({ navigation }) {
 
         <Text style={[styles.title, localStyles.title]}>Trilha das Arvores</Text>
         <Text style={localStyles.description}>
-          Escolha uma trilha e siga os checkpoints no mapa. O app salva seu progresso para retomar depois.
+          Escolha uma trilha e siga os checkpoints no mapa.
         </Text>
 
         <View style={localStyles.actions}>
@@ -93,7 +90,7 @@ const localStyles = StyleSheet.create({
   heroGradient: {
     width: '100%',
     height: '100%',
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
   },
   heroTextBlock: {
     paddingHorizontal: 24,
