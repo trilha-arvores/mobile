@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, StyleSheet, Text, ActivityIndicator, SafeAreaView } from 'react-native';
+import { View, StyleSheet, Text, ActivityIndicator } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCodeScanner, Camera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera';
 import ChangeColorButton from '../components/ChangeColorButton';
 import DefaultButton from '../components/DefaultButton';
@@ -13,6 +14,7 @@ export default function ScanScreen({ route, navigation }) {
   const device = useCameraDevice('back');
   const [scanState, setScanState] = useState(WAITING);
   const { hasPermission, requestPermission } = useCameraPermission();
+  const insets = useSafeAreaInsets();
 
   const tree = route.params?.tree || {};
 
@@ -89,7 +91,7 @@ export default function ScanScreen({ route, navigation }) {
 
   if (!hasPermission) {
     return (
-      <SafeAreaView style={localStyles.permissionScreen}>
+      <SafeAreaView style={localStyles.permissionScreen} edges={['bottom']}>
         <Text style={localStyles.permissionTitle}>Permissao de camera necessaria</Text>
         <Text style={localStyles.permissionText}>
           Para validar checkpoints por QR Code, permita o uso da camera no dispositivo.
@@ -106,7 +108,7 @@ export default function ScanScreen({ route, navigation }) {
 
   if (!device) {
     return (
-      <SafeAreaView style={localStyles.permissionScreen}>
+      <SafeAreaView style={localStyles.permissionScreen} edges={['bottom']}>
         <ActivityIndicator size="large" color={colors.green} />
         <Text style={localStyles.permissionText}>Carregando camera...</Text>
       </SafeAreaView>
@@ -114,7 +116,7 @@ export default function ScanScreen({ route, navigation }) {
   }
 
   return (
-    <SafeAreaView style={localStyles.screen}>
+    <SafeAreaView style={localStyles.screen} edges={['bottom']}>
       <View style={localStyles.topBanner}>
         <ChangeColorButton text={status.text} color={status.color} />
       </View>
@@ -133,7 +135,7 @@ export default function ScanScreen({ route, navigation }) {
         </View>
       </View>
 
-      <View style={localStyles.footerHelp}>
+      <View style={[localStyles.footerHelp, { paddingBottom: Math.max(insets.bottom, 10) }]}>
         <Text style={localStyles.footerText}>Dica: use boa iluminacao para leitura mais rapida.</Text>
       </View>
     </SafeAreaView>

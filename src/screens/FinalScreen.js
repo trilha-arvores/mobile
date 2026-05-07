@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, Image, ScrollView, StyleSheet, ActivityIndicator, Alert, SafeAreaView } from 'react-native';
+import { View, Text, Image, ScrollView, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import DefaultButton from '../components/DefaultButton';
 import { useFonts } from 'expo-font';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
@@ -10,6 +11,7 @@ import { colors } from '../styles/Colors';
 
 export default function FinalScreen({ route, navigation }) {
   const { tempo: time, distancia, item } = route.params;
+  const insets = useSafeAreaInsets();
   const [isLoading, setLoading] = useState(true);
   const [trees, setTrees] = useState([]);
   const viewRef = useRef();
@@ -92,7 +94,7 @@ export default function FinalScreen({ route, navigation }) {
 
   if (!fontsLoaded || isLoading) {
     return (
-      <SafeAreaView style={localStyles.loadingScreen}>
+      <SafeAreaView style={localStyles.loadingScreen} edges={['bottom']}>
         <ActivityIndicator size="large" color={colors.green} />
         <Text style={localStyles.loadingText}>Gerando resumo da atividade...</Text>
       </SafeAreaView>
@@ -101,7 +103,7 @@ export default function FinalScreen({ route, navigation }) {
 
   return (
     <View ref={viewRef} collapsable={false} style={localStyles.root}>
-      <SafeAreaView style={localStyles.safeArea}>
+      <SafeAreaView style={localStyles.safeArea} edges={['bottom']}>
         <View style={localStyles.heroSection}>
           <Image style={localStyles.heroImage} source={{ uri: normalizeUrl(item.thumb_img) }} />
           <View style={localStyles.heroOverlay} />
@@ -111,7 +113,7 @@ export default function FinalScreen({ route, navigation }) {
           </View>
         </View>
 
-        <View style={localStyles.contentCard}>
+        <View style={[localStyles.contentCard, { paddingBottom: Math.max(insets.bottom, 12) }]}>
           <View style={localStyles.summaryHeader}>
             <Text style={localStyles.summaryTitle}>Resumo da jornada</Text>
             <Text style={localStyles.summarySub}>Todos os checkpoints foram finalizados.</Text>

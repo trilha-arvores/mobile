@@ -6,10 +6,10 @@ import {
   Alert,
   StyleSheet,
   Pressable,
-  SafeAreaView,
   useWindowDimensions,
 } from 'react-native';
 import * as Progress from 'react-native-progress';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import DistanceComponent from '../components/DistanceComponent';
 import TimeComponent from '../components/TimeComponent';
 import Compass from '../components/Compass';
@@ -60,7 +60,8 @@ function LegendDot({ color, label }) {
 export default function AtividadeScreen({ route, navigation }) {
   const { suspendTrail, clearSuspendedTrail } = useSuspendedTrail();
   const mapRef = useRef(null);
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
 
   const item = route.params.item;
 
@@ -92,7 +93,17 @@ export default function AtividadeScreen({ route, navigation }) {
     if (!totalTrees) return 0;
     return Math.min(arvore / totalTrees, 1);
   }, [arvore, totalTrees]);
-  const progressBarWidth = useMemo(() => Math.max(width - 36, 180), [width]);
+  const progressBarWidth = useMemo(() => Math.max(width - 28, 180), [width]);
+  const isCompactHeight = height < 780;
+  const isVeryCompactHeight = height < 710;
+  const mapFlex = isCompactHeight ? 4.3 : 5;
+  const bottomFlex = isCompactHeight ? 3.4 : 2.9;
+  const bottomSafePadding = Math.max(insets.bottom, 12);
+  const actionButtonSize = useMemo(() => {
+    const base = Math.min(Math.max(Math.round(width * 0.24), 72), 96);
+    return isVeryCompactHeight ? base - 6 : base;
+  }, [width, isVeryCompactHeight]);
+  const actionButtonTextSize = actionButtonSize <= 74 ? 10 : 12;
 
   const focusOnTree = useCallback((tree, duration = 900) => {
     if (!tree || !mapRef.current) return;
@@ -286,7 +297,7 @@ export default function AtividadeScreen({ route, navigation }) {
   }
 
   return (
-    <SafeAreaView style={localStyles.screen}>
+    <SafeAreaView style={localStyles.screen} edges={['bottom']}>
       <View style={localStyles.topPanel}>
         <View style={localStyles.topLine}>
           <Text style={localStyles.topTitle}>Checkpoint {Math.min(arvore + 1, totalTrees || 1)} de {totalTrees || '-'}</Text>
@@ -313,7 +324,7 @@ export default function AtividadeScreen({ route, navigation }) {
         )}
       </View>
 
-      <View style={localStyles.mapContainer}>
+      <View style={[localStyles.mapContainer, { flex: mapFlex }]}>
         <MapView
           ref={mapRef}
           style={StyleSheet.absoluteFillObject}
@@ -377,14 +388,14 @@ export default function AtividadeScreen({ route, navigation }) {
         </Pressable>
       </View>
 
-      <View style={localStyles.bottomPanel}>
+      <View style={[localStyles.bottomPanel, { flex: bottomFlex, paddingBottom: bottomSafePadding }]}>
         <View style={localStyles.metricsRow}>
           <DistanceComponent distance={distancia.toFixed(2)} />
           <View style={localStyles.verticalDivider} />
           <TimeComponent start={start && gpsReady} getTime={handleTimeUpdate} initialTime={time} />
         </View>
 
-        <View style={localStyles.progressWrap}>
+        <View style={[localStyles.progressWrap, isCompactHeight && localStyles.progressWrapCompact]}>
           <Text style={localStyles.progressText}>Arvores visitadas: {arvore} / {totalTrees}</Text>
           <Progress.Bar
             progress={progressValue}
@@ -397,11 +408,17 @@ export default function AtividadeScreen({ route, navigation }) {
           />
         </View>
 
-        <View style={localStyles.actionsRow}>
+        <View style={[localStyles.actionsRow, isCompactHeight && localStyles.actionsRowCompact]}>
           {finish || arvore >= totalTrees ? (
             <FilledRoundButton
               text="FINALIZAR"
               onPress={() => navigation.navigate('Final', { tempo: time, distancia, item })}
+              style={{
+                width: actionButtonSize,
+                height: actionButtonSize,
+                borderRadius: actionButtonSize / 2,
+              }}
+              textStyle={{ fontSize: actionButtonTextSize }}
             />
           ) : (
             <>
@@ -409,15 +426,30 @@ export default function AtividadeScreen({ route, navigation }) {
                 text={start ? 'PAUSAR' : 'RETOMAR'}
                 onPress={() => setStart((prev) => !prev)}
                 accessibilityLabel={start ? 'Pausar cronometro' : 'Retomar cronometro'}
+                style={{
+                  width: actionButtonSize,
+                  height: actionButtonSize,
+                  borderRadius: actionButtonSize / 2,
+                }}
+                textStyle={{ fontSize: actionButtonTextSize }}
               />
 
-              <Compass />
+              <Compass
+                size={actionButtonSize}
+                labelStyle={{ fontSize: isCompactHeight ? 9 : 10 }}
+              />
 
               <RoundButton
-                text="ESCANEAR QR"
+                text="ESCANEAR"
                 onPress={handleScanPress}
                 disabled={!currentTree}
                 accessibilityLabel="Abrir camera para escanear QR Code"
+                style={{
+                  width: actionButtonSize,
+                  height: actionButtonSize,
+                  borderRadius: actionButtonSize / 2,
+                }}
+                textStyle={{ fontSize: actionButtonTextSize, lineHeight: actionButtonTextSize + 3 }}
               />
             </>
           )}
@@ -607,6 +639,9 @@ const localStyles = StyleSheet.create({
     marginTop: 10,
     paddingHorizontal: 2,
   },
+  progressWrapCompact: {
+    marginTop: 8,
+  },
   progressText: {
     color: colors.black,
     fontSize: 13,
@@ -617,7 +652,10 @@ const localStyles = StyleSheet.create({
     marginTop: 10,
     flexDirection: 'row',
     justifyContent: 'space-evenly',
-    alignItems: 'flex-end',
+    alignItems: 'center',
     gap: 8,
+  },
+  actionsRowCompact: {
+    marginTop: 8,
   },
 });

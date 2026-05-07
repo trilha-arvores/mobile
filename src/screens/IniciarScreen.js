@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, Image, ScrollView, StyleSheet, SafeAreaView } from 'react-native';
+import { View, Text, Image, ScrollView, StyleSheet } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import DefaultButton from '../components/DefaultButton';
 import { useFonts } from 'expo-font';
 import { normalizeUrl } from '../config/api';
@@ -8,18 +9,19 @@ import { colors } from '../styles/Colors';
 
 export default function IniciarScreen({ route, navigation }) {
   const item = route.params.item;
+  const insets = useSafeAreaInsets();
 
   useFonts({
     BebasNeue: require('../assets/fonts/BebasNeue.ttf'),
   });
 
   return (
-    <SafeAreaView style={localStyles.screen}>
+    <SafeAreaView style={localStyles.screen} edges={['bottom']}>
       <View style={localStyles.imageHeader}>
         <Image style={localStyles.image} source={{ uri: normalizeUrl(item.thumb_img) }} />
       </View>
 
-      <View style={localStyles.contentCard}>
+      <View style={[localStyles.contentCard, { paddingBottom: Math.max(insets.bottom, 12) }]}>
         <ScrollView contentContainerStyle={localStyles.scrollContent} showsVerticalScrollIndicator={false}>
           <Text style={localStyles.title}>{item.name}</Text>
 

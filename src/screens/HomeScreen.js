@@ -7,8 +7,8 @@ import {
   ImageBackground,
   StyleSheet,
   Alert,
-  SafeAreaView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import DefaultButton from '../components/DefaultButton';
 import { LinearGradient } from 'expo-linear-gradient';
 import { styles } from '../styles/styles';

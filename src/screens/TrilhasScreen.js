@@ -8,8 +8,8 @@ import {
   Image,
   Alert,
   StyleSheet,
-  SafeAreaView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { API_BASE, normalizeUrl } from '../config/api';
 import { useSuspendedTrail } from '../context/SuspendedTrailContext';

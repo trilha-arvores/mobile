@@ -4,7 +4,7 @@ import { Magnetometer } from 'expo-sensors';
 import { styles } from '../styles/styles';
 import { colors } from '../styles/Colors';
 
-export default function Compass() {
+export default function Compass({ size = 86, style, labelStyle }) {
   const [magnetometer, setMagnetometer] = useState(0);
 
   const getAngle = (reading) => {
@@ -30,17 +30,18 @@ export default function Compass() {
   }, []);
 
   return (
-    <View style={localStyles.wrapper}>
+    <View style={[localStyles.wrapper, style]}>
       <View
         style={[
           styles.filledRoundButton,
           localStyles.compassCircle,
+          { width: size, height: size, borderRadius: size / 2 },
           { transform: [{ rotate: `${360 - magnetometer}deg` }] },
         ]}
       >
         <Image style={localStyles.image} source={require('../assets/icompass.png')} />
       </View>
-      <Text style={localStyles.label}>BUSSOLA</Text>
+      <Text style={[localStyles.label, labelStyle]}>BUSSOLA</Text>
     </View>
   );
 }

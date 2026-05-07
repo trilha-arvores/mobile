@@ -8,6 +8,8 @@ import {
     StyleSheet,
     TouchableOpacity
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { colors } from '../styles/Colors';
 
 export default function PerfilScreen({ navigation }) {
     // TODO: substituir mocks por estado e lógica de fetch
@@ -37,52 +39,59 @@ export default function PerfilScreen({ navigation }) {
     );
 
     return (
-        <ScrollView contentContainerStyle={styles.container}>
-            {/* Header: foto + nome */}
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => {
-                    // TODO: navegar para um cropper de foto ou galeria
-                }}>
-                    {user.photoUrl
-                        ? <Image source={{ uri: user.photoUrl }} style={styles.profileImage} />
-                        : <View style={styles.profilePlaceholder}>
-                              <Text style={styles.photoText}>Foto</Text>
-                          </View>
+        <SafeAreaView style={styles.safeArea} edges={['bottom']}>
+            <ScrollView contentContainerStyle={styles.container}>
+                {/* Header: foto + nome */}
+                <View style={styles.header}>
+                    <TouchableOpacity onPress={() => {
+                        // TODO: navegar para um cropper de foto ou galeria
+                    }}>
+                        {user.photoUrl
+                            ? <Image source={{ uri: user.photoUrl }} style={styles.profileImage} />
+                            : <View style={styles.profilePlaceholder}>
+                                  <Text style={styles.photoText}>Foto</Text>
+                              </View>
+                        }
+                    </TouchableOpacity>
+                    <Text style={styles.username}>{user.username}</Text>
+                </View>
+
+                {/* Estatísticas gerais */}
+                <View style={styles.statsContainer}>
+                    <View style={styles.statBox}>
+                        <Text style={styles.statValue}>{user.trailsCompleted}</Text>
+                        <Text style={styles.statLabel}>Trilhas feitas</Text>
+                    </View>
+                    <View style={styles.statBox}>
+                        <Text style={styles.statValue}>{user.bestTrailTime}</Text>
+                        <Text style={styles.statLabel}>Melhor tempo</Text>
+                    </View>
+                </View>
+
+                {/* Lista de trilhas e menores tempos */}
+                <Text style={styles.sectionTitle}>Histórico de Trilhas</Text>
+                <FlatList
+                    data={trails}
+                    keyExtractor={item => item.id}
+                    renderItem={renderTrail}
+                    ListEmptyComponent={
+                        <Text style={styles.emptyText}>Nenhuma trilha registrada.</Text>
                     }
-                </TouchableOpacity>
-                <Text style={styles.username}>{user.username}</Text>
-            </View>
-
-            {/* Estatísticas gerais */}
-            <View style={styles.statsContainer}>
-                <View style={styles.statBox}>
-                    <Text style={styles.statValue}>{user.trailsCompleted}</Text>
-                    <Text style={styles.statLabel}>Trilhas feitas</Text>
-                </View>
-                <View style={styles.statBox}>
-                    <Text style={styles.statValue}>{user.bestTrailTime}</Text>
-                    <Text style={styles.statLabel}>Melhor tempo</Text>
-                </View>
-            </View>
-
-            {/* Lista de trilhas e menores tempos */}
-            <Text style={styles.sectionTitle}>Histórico de Trilhas</Text>
-            <FlatList
-                data={trails}
-                keyExtractor={item => item.id}
-                renderItem={renderTrail}
-                ListEmptyComponent={
-                    <Text style={styles.emptyText}>Nenhuma trilha registrada.</Text>
-                }
-            />
-        </ScrollView>
+                />
+            </ScrollView>
+        </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
+    safeArea: {
+        flex: 1,
+        backgroundColor: colors.white,
+    },
     container: {
         padding: 20,
-        paddingBottom: 40
+        paddingBottom: 40,
+        backgroundColor: colors.white,
     },
     header: {
         flexDirection: 'row',
